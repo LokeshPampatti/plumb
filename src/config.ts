@@ -4,7 +4,7 @@ import picomatch from 'picomatch';
 import type { Snapshot } from './git.js';
 import type { Category, Severity } from './types.js';
 
-export type ProviderName = 'anthropic' | 'openai' | 'ollama' | 'claude-code' | 'mock' | 'none';
+export type ProviderName = 'anthropic' | 'openai' | 'ollama' | 'claude-code' | 'exchange' | 'mock' | 'none';
 
 export interface PlumbConfig {
   model: {

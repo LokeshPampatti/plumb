@@ -3,6 +3,8 @@
 // Claude subscription, no API key), and a deterministic mock for tests.
 
 import { spawn } from 'node:child_process';
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type { LLMRequest, LLMResponse, Provider } from './provider.js';
 import { approxTokens, extractJson } from './provider.js';
 
@@ -140,5 +142,71 @@ export class MockProvider implements Provider {
     const inT = approxTokens(req.system + (req.sharedContext ?? '') + req.prompt);
     const outT = approxTokens(raw);
     return { json, raw, usage: { inputTokens: inT, outputTokens: outT, cacheReadTokens: 0, cacheWriteTokens: 0, usd: (inT + outT * 5) / 1e6, calls: 1 } };
+  }
+}
+
+/**
+ * Hands each request to an external agent through files: writes req-<id>.md and
+ * waits for res-<id>.json. Used to run Plumb with agents (e.g. Claude Code
+ * sub-agents) as the model, one fresh context per request.
+ */
+export class ExchangeProvider implements Provider {
+  readonly name = 'exchange';
+  readonly pricing = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
+  private static counter = 0;
+  constructor(
+    private dir: string,
+    readonly model: string = 'agent',
+    private timeoutMs = 45 * 60_000,
+  ) {
+    mkdirSync(dir, { recursive: true });
+  }
+
+  async complete(req: LLMRequest): Promise<LLMResponse> {
+    const id = `${Date.now()}-${process.pid}-${ExchangeProvider.counter++}`;
+    const reqPath = join(this.dir, `req-${id}.md`);
+    const resPath = join(this.dir, `res-${id}.json`);
+    const body = [
+      `# Request ${id} (${req.purpose})`,
+      '',
+      '## SYSTEM (your instructions)',
+      '',
+      req.system,
+      '',
+      ...(req.sharedContext ? ['## SHARED CONTEXT', '', req.sharedContext, ''] : []),
+      '## INPUT',
+      '',
+      req.prompt,
+      '',
+      '## OUTPUT',
+      '',
+      `Write exactly one JSON object matching this JSON Schema to ${resPath}, and nothing else:`,
+      '',
+      '```json',
+      JSON.stringify(req.schema, null, 2),
+      '```',
+      '',
+    ].join('\n');
+    writeFileSync(reqPath + '.tmp', body);
+    renameSync(reqPath + '.tmp', reqPath); // watchers only ever see complete files
+    const t0 = Date.now();
+    while (Date.now() - t0 < this.timeoutMs) {
+      if (existsSync(resPath)) {
+        const raw = readFileSync(resPath, 'utf8');
+        try {
+          let json: unknown;
+          try {
+            json = JSON.parse(raw);
+          } catch {
+            json = extractJson(raw);
+          }
+          return { json, raw, usage: { inputTokens: approxTokens(body), outputTokens: approxTokens(raw), cacheReadTokens: 0, cacheWriteTokens: 0, usd: 0, calls: 1 } };
+        } catch {
+          // partially written; try again shortly
+        }
+      }
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+    throw new Error(`No answer for ${reqPath} within ${Math.round(this.timeoutMs / 60000)} minutes`);
   }
 }

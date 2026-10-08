@@ -1,0 +1,247 @@
+{
+ "summary": {
+  "at": "2026-10-08T16:33:00.531Z",
+  "mode": "exchange/default",
+  "cases": 10,
+  "plumb": {
+   "caught": 6,
+   "rate": 0.6,
+   "staticCatches": 1,
+   "avgFindings": 1.9,
+   "usd": 0,
+   "seconds": 2104.5
+  },
+  "others": {
+   "greptile": 7,
+   "cursor": 5,
+   "copilot": 3,
+   "coderabbit": 5,
+   "graphite": 0
+  },
+  "caughtByPlumbOnly": [
+   "sentry-2"
+  ]
+ },
+ "results": [
+  {
+   "id": "sentry-1",
+   "bug": "Importing non-existent OptimizedCursorPaginator",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 3,
+   "findingTitles": [
+    "[P1] src/sentry/api/endpoints/organization_auditlogs.py:70 organization_context.member can be None, so every non-member request now 500s",
+    "[P1] src/sentry/api/paginator.py:838 OptimizedCursorPaginator treats the datetime sort key as a number and crashes",
+    "[P2] src/sentry/api/paginator.py:877 Negative cursor offsets are sliced straight into a Django queryset, which raises"
+   ],
+   "usd": 0,
+   "seconds": 222.2,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "sentry-2",
+   "bug": "Negative offset cursor manipulation bypasses pagination boundaries",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Client-supplied negative cursor offset is sliced straight into the queryset",
+    "file": "src/sentry/api/paginator.py",
+    "line": 877,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #2 points at paginator.py where a client-supplied negative cursor offset is sliced straight into the queryset to reach data beyond normal pagination bounds, notes the weak permission gate, and recommends clamping the offset and removing the bypass. That is the same root cause as the known bug (negative offset cursor manipulation bypassing pagination boundaries) and it states the impact.",
+   "findings": 4,
+   "findingTitles": [
+    "[P1] src/sentry/api/paginator.py:838 OptimizedCursorPaginator applies integer key math to the datetime audit-log key",
+    "[P2] src/sentry/api/endpoints/organization_auditlogs.py:71 organization_context.member may be None; this now runs on every audit-log request",
+    "[P2] src/sentry/api/paginator.py:877 Client-supplied negative cursor offset is sliced straight into the queryset",
+    "[P2] src/sentry/spans/buffer.py:197 Span sets switch from SET to ZSET under the same key names with no migration"
+   ],
+   "usd": 0,
+   "seconds": 242.8,
+   "others": [
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "cal.com-1",
+   "bug": "Async callbacks in forEach creates unhandled promise rejections",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "forEach(async) makes the surrounding try/catch dead; getCalendar failures become unhandled rejections",
+    "file": "packages/app-store/vital/lib/reschedule.ts",
+    "line": 125,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #0 names the same root cause: async callbacks passed to forEach, so their promises are never awaited and failures become unhandled promise rejections that bypass the surrounding try/catch. It points at the affected reschedule.ts code (plus the same pattern in wipemycalother and bookings.tsx) and explains the impact: errors are not logged and could crash the Node process.",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] packages/app-store/vital/lib/reschedule.ts:125 forEach(async) makes the surrounding try/catch dead; getCalendar failures become unhandled rejections"
+   ],
+   "usd": 0,
+   "seconds": 164.8,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "cal.com-2",
+   "bug": "Backup codes not invalidated after use",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 2,
+   "findingTitles": [
+    "[P1] packages/features/auth/lib/next-auth-options.ts:131 Backup-code login skips the password check when any totpCode is also sent",
+    "[P2] packages/features/auth/lib/next-auth-options.ts:148 Backup-code consumption is an unguarded read-modify-write, so used codes can be reused"
+   ],
+   "usd": 0,
+   "seconds": 272.5,
+   "others": [
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "grafana-1",
+   "bug": "Race condition in CreateOrUpdateDevice method",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Device limit check is a non-atomic count-then-insert, so concurrent new devices exceed the limit",
+    "file": "pkg/services/anonymous/anonimpl/anonstore/database.go",
+    "line": 109,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #0 points at CreateOrUpdateDevice in anonstore/database.go and describes the race: the device count and the insert run as separate, non-atomic steps with no transaction or lock. It explains the impact (concurrent requests all see count < limit, so the stored device count goes over device_limit). That is the same root cause as the planted race condition in CreateOrUpdateDevice.",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] pkg/services/anonymous/anonimpl/anonstore/database.go:109 Device limit check is a non-atomic count-then-insert, so concurrent new devices exceed the limit"
+   ],
+   "usd": 0,
+   "seconds": 184.4,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "grafana-2",
+   "bug": "Cache entries without expiration causing permanent permission denials",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] pkg/services/authz/rbac/cache.go:30 Denial cache key joins name and folder with '_', so different resources can share one key"
+   ],
+   "usd": 0,
+   "seconds": 247,
+   "others": [
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-1",
+   "bug": "ConditionalPasskeysEnabled() called without UserModel parameter",
+   "caught": true,
+   "how": "static",
+   "matched": {
+    "title": "This call to `isConditionalPasskeysEnabled()` is missing `user`",
+    "file": "services/src/main/java/org/keycloak/authentication/authenticators/browser/UsernameForm.java",
+    "line": 47,
+    "verification": "deterministic"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #0 flags the exact planted bug: the call to isConditionalPasskeysEnabled() in UsernameForm.java omits the required UserModel user argument, while the method is declared as isConditionalPasskeysEnabled(UserModel user). It points at that call site and states the impact (it will not compile). Finding #1 is about a different issue, the inverted user != null logic.",
+   "findings": 2,
+   "findingTitles": [
+    "[P1] services/src/main/java/org/keycloak/authentication/authenticators/browser/UsernameForm.java:47 This call to `isConditionalPasskeysEnabled()` is missing `user`",
+    "[P1] services/src/main/java/org/keycloak/authentication/authenticators/browser/UsernamePasswordForm.java:161 Passkey check now requires user != null, so the normal login page loses conditional passkey UI"
+   ],
+   "usd": 0,
+   "seconds": 129.7,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "keycloak-2",
+   "bug": "Recursive caching call using session instead of delegate",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 243.8,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "discourse-1",
+   "bug": "Method overwriting causing parameter mismatch",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Second `def self.downsize` silently replaces the width/height version",
+    "file": "app/models/optimized_image.rb",
+    "line": 149,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #1 identifies that the second `def self.downsize` in optimized_image.rb overwrites the earlier width/height definition (Ruby has no overloading), causing callers' arguments to mismatch the new signature (ArgumentError or height bound to opts). This is the same root cause as the known bug: method overwriting causing parameter mismatch, pointing at the right code and explaining impact.",
+   "findings": 2,
+   "findingTitles": [
+    "[P2] app/assets/javascripts/discourse/lib/utilities.js:182 Client size check hard-codes 10MB for every type and ignores the per-type site settings",
+    "[P2] app/models/optimized_image.rb:149 Second `def self.downsize` silently replaces the width/height version"
+   ],
+   "usd": 0,
+   "seconds": 167.3,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-2",
+   "bug": "Nil reference non-existent TopicUser",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "unsubscribe crashes with NoMethodError when the user has no TopicUser row",
+    "file": "app/controllers/topics_controller.rb",
+    "line": 105,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #1 points at the unsubscribe action in topics_controller.rb and identifies that TopicUser.find_by returns nil when no TopicUser row exists, so tu.notification_level raises NoMethodError (500). That is the same root cause as the known nil-reference bug for a non-existent TopicUser, and it explains the impact.",
+   "findings": 3,
+   "findingTitles": [
+    "[P1] config/locales/server.en.yml:1852 unsubscribe_link now requires %{unsubscribe_url}, breaking every sender that doesn't pass it",
+    "[P2] app/controllers/topics_controller.rb:105 unsubscribe crashes with NoMethodError when the user has no TopicUser row",
+    "[P2] config/routes.rb:440 State-changing GET with session auth lets any site mute a user's topics (CSRF)"
+   ],
+   "usd": 0,
+   "seconds": 230,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  }
+ ]
+}

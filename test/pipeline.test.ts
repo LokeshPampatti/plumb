@@ -394,3 +394,27 @@ describe('plumb learn', () => {
     expect(rules[0].evidence.map((e) => e.id)).toEqual([1, 2]);
   });
 });
+
+describe('exchange provider', () => {
+  it('writes a readable request and returns the agent answer', async () => {
+    const { ExchangeProvider } = await import('../src/llm/others.js');
+    const { mkdtempSync, readdirSync, readFileSync, writeFileSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    const { tmpdir } = await import('node:os');
+    const dir = mkdtempSync(join(tmpdir(), 'plumb-ex-'));
+    const p = new ExchangeProvider(dir);
+    const pending = p.complete({ system: 'Be a reviewer.', sharedContext: 'Repo rules.', prompt: 'Diff here', schema: { type: 'object' }, purpose: 'find' });
+    let req = '';
+    for (let i = 0; i < 50 && !req; i++) {
+      await new Promise((r) => setTimeout(r, 50));
+      req = readdirSync(dir).find((f) => f.startsWith('req-') && f.endsWith('.md')) ?? '';
+    }
+    const text = readFileSync(join(dir, req), 'utf8');
+    expect(text).toContain('## SYSTEM (your instructions)\n\nBe a reviewer.');
+    expect(text).toContain('## INPUT\n\nDiff here');
+    const resPath = text.match(/matching this JSON Schema to (\S+),/)![1];
+    writeFileSync(resPath, '```json\n{"findings": []}\n```');
+    const r = await pending;
+    expect(r.json).toEqual({ findings: [] });
+  });
+});

@@ -144,7 +144,7 @@ async function main() {
   const provider = (arg('provider') ?? 'none') as ProviderName;
   const model: PlumbConfig['model'] = { provider, name: arg('model'), effort: (arg('effort') as PlumbConfig['model']['effort']) ?? 'high' };
   const budget = Number(arg('budget') ?? '1');
-  if (!staticOnly && provider !== 'none' && provider !== 'claude-code' && provider !== 'ollama' && !flag('yes')) {
+  if (!staticOnly && provider !== 'none' && provider !== 'claude-code' && provider !== 'ollama' && provider !== 'exchange' && !flag('yes')) {
     console.error(`This run calls ${provider} for ${cases.length} cases with a $${budget.toFixed(2)} cap per case. Re-run with --yes to confirm.`);
     process.exit(1);
   }
