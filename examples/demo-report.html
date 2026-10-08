@@ -82,7 +82,11 @@ h2 .kicker { display: block; margin-bottom: 8px; }
 .fix .label, .label { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ok); margin-bottom: 6px; }
 .fix pre { margin: 0; padding: 10px 14px; background: var(--code-bg); border-left: 2px solid var(--ok); overflow-x: auto; }
 .finding footer { display: flex; gap: 16px; flex-wrap: wrap; font: 400 12px var(--mono); color: var(--ink-2); }
-.v-deterministic, .v-confirmed { color: var(--ok); }
+.v-reproduced, .v-deterministic, .v-confirmed { color: var(--ok); }
+.repro { margin: 0 0 14px; font-size: 13px; }
+.repro summary { cursor: pointer; font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ok); }
+.repro pre { padding: 10px 14px; background: var(--code-bg); border-left: 2px solid var(--ok); overflow-x: auto; }
+.repro pre.out { border-left-color: var(--p0); }
 .v-unverified { color: var(--p1); }
 .skeptic { font-size: 13px; color: var(--ink-2); margin: 10px 0 0; max-width: 70ch; }
 .blast-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -120,9 +124,9 @@ h2 .kicker { display: block; margin-bottom: 8px; }
 <main class="sheet">
   <div class="bob" aria-hidden="true"></div>
   <button class="theme" onclick="var d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark'">Theme</button>
-  <div class="kicker">Plumb · field report · 2026-10-07 23:06</div>
+  <div class="kicker">Plumb · field report · 2026-10-08 15:25</div>
   <h1>uncommitted changes<br><em>2 findings</em></h1>
-  <div class="meta">2 files · +4 −3 · risk <b>critical</b> · head <code>4421be1c2</code></div>
+  <div class="meta">2 files · +4 −3 · risk <b>critical</b> · head <code>9432cd26e</code></div>
 
   <section class="top">
     <div>
@@ -154,6 +158,7 @@ h2 .kicker { display: block; margin-bottom: 8px; }
     <p class="body">Line 2 adds what looks like a Stripe live secret key (<code>sk_l…************</code>). Anything pushed to a remote should be treated as leaked: rotate it, then load it from an environment variable or secret manager.</p>
     <ol class="evidence"><li><span class="mark">1</span><div><code class="loc">src/payments/charge.ts:2</code> <span class="note">added line (value redacted)</span><pre>const stripeKey = &quot;sk_l…************&quot;;</pre></div></li></ol>
     
+    
     <footer>
       <span class="verif v-deterministic">Proven by static analysis</span>
       <span>secret</span>
@@ -173,6 +178,7 @@ h2 .kicker { display: block; margin-bottom: 8px; }
     <table class="frame"><tr class="hit"><td class="ln">1</td><td class="src">export function charge(userId: string, cents: number, idempotencyKey: string) {</td></tr><tr class=""><td class="ln">2</td><td class="src">  const stripeKey = &quot;sk_l…************&quot;;</td></tr><tr class=""><td class="ln">3</td><td class="src">  return { userId, cents, idempotencyKey, stripeKey };</td></tr><tr class=""><td class="ln">4</td><td class="src">}</td></tr></table>
     <p class="body">The parameter list of <code>charge</code> changed in this diff (was 2 arguments, now 3 arguments). These call sites were not updated, and 2 of them are in files this change doesn't touch, so a diff-only review won't see them. This will fail to compile.</p>
     <ol class="evidence"><li><span class="mark">1</span><div><code class="loc">src/payments/charge.ts:1</code> <span class="note">new signature</span><pre>export function charge(userId: string, cents: number, idempotencyKey: string) {</pre></div></li><li><span class="mark">2</span><div><code class="loc">src/api/checkout.ts:4</code> <span class="note">caller passes 2, missing <code>idempotencyKey</code> (file not in this diff)</span><pre>return charge(userId, cents);</pre></div></li><li><span class="mark">3</span><div><code class="loc">src/api/refund.ts:2</code> <span class="note">caller passes 2, missing <code>idempotencyKey</code> (file not in this diff)</span><pre>export const refund = (userId: string, cents: number) =&gt; charge(userId, -cents);</pre></div></li></ol>
+    
     
     <footer>
       <span class="verif v-deterministic">Proven by static analysis</span>
