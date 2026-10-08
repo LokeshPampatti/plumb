@@ -206,7 +206,7 @@ export async function runReview(opts: ReviewOptions): Promise<ReviewResult> {
   if (provider && reviewFiles.size) {
     const shared = sharedContext(ctx, opts.prDescription);
     const prefs = loadMemory(changes.root, memoryText(changes, loaded.local)).rules.filter((r) => r.kind === 'prefer');
-    const sharedFull = shared + (prefs.length ? '\n\n## Team preferences learned from past reviews\n' + prefs.map((p) => `- ${p.text}`).join('\n') : '');
+    const sharedFull = shared + (prefs.length ? '\n\n## Team preferences learned from past reviews\n' + prefs.map((p) => `- ${p.text}${p.match.paths?.length ? ` (applies to ${p.match.paths.join(', ')})` : ''}`).join('\n') : '');
     let units = buildUnits(ctx, impact, history, staticFindings);
     const votes = Math.max(1, Math.min(5, cfg.votes));
     const specialists = cfg.specialists.filter((sp) => SPECIALISTS[sp]);

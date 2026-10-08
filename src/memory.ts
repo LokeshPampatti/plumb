@@ -10,6 +10,7 @@ import type { Category, Finding } from './types.js';
 
 export interface MemoryEvidence {
   date: string;
+  url?: string;
   who?: string;
   finding?: string;
   file?: string;
@@ -24,7 +25,7 @@ export interface MemoryRule {
   match: { rule?: string; category?: Category; paths?: string[]; keywords?: string[] };
   evidence: MemoryEvidence[];
   createdAt: string;
-  source: 'dismiss' | 'manual' | 'github-reaction' | 'github-reply';
+  source: 'dismiss' | 'manual' | 'github-reaction' | 'github-reply' | 'learned';
   hits?: number;
 }
 
@@ -160,15 +161,15 @@ export function learnFromDismissal(
   return { rule, created: true };
 }
 
-export function addPreference(mem: MemoryFile, text: string, who?: string): MemoryRule {
+export function addPreference(mem: MemoryFile, text: string, who?: string, extra: { paths?: string[]; evidence?: MemoryEvidence[]; source?: MemoryRule['source'] } = {}): MemoryRule {
   const rule: MemoryRule = {
     id: ruleId(text + Date.now()),
     kind: 'prefer',
     text: text.trim(),
-    match: {},
-    evidence: [{ date: new Date().toISOString().slice(0, 10), who }],
+    match: extra.paths?.length ? { paths: extra.paths } : {},
+    evidence: extra.evidence ?? [{ date: new Date().toISOString().slice(0, 10), who }],
     createdAt: new Date().toISOString().slice(0, 10),
-    source: 'manual',
+    source: extra.source ?? 'manual',
   };
   mem.rules.push(rule);
   return rule;

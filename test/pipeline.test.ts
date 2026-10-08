@@ -375,3 +375,22 @@ describe('depth', () => {
     expect(r.estimate!.usd).toBeGreaterThan(base.estimate!.usd * 3);
   });
 });
+
+describe('plumb learn', () => {
+  it('keeps only rules backed by two real comments', async () => {
+    const { proposeRules } = await import('../src/learn.js');
+    const comments = [1, 2, 3].map((id) => ({ id, url: `https://x/${id}`, author: 'a', path: 'api/x.ts', body: `please validate the request body with zod (${id})`, pr: 1 }));
+    const mock = new MockProvider({
+      chat: () => ({
+        rules: [
+          { text: 'Validate request bodies with zod in API routes', paths: ['api/**'], commentIds: [1, 2] },
+          { text: 'One comment is not a pattern', commentIds: [3] },
+          { text: 'Invented evidence', commentIds: [99, 100] },
+        ],
+      }),
+    });
+    const rules = await proposeRules(mock, comments);
+    expect(rules.map((r) => r.text)).toEqual(['Validate request bodies with zod in API routes']);
+    expect(rules[0].evidence.map((e) => e.id)).toEqual([1, 2]);
+  });
+});

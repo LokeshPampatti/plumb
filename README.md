@@ -90,7 +90,7 @@ Everything in the Greptile column comes from Greptile's own docs (October 2026).
 | Bugs outside the diff | Inline comments only reach diff lines | Deterministic contract checks, plus a "Problems outside this diff" section in the PR summary |
 | Score | 0-5 | 0-5 with every deduction itemized |
 | Auto-approve | "A withheld approval is silent" | Every decision says why, approve or not |
-| Learning | 2-3 weeks of reactions, stored in the dashboard | Instant. Rules live in `.plumb/memory.json`, get reviewed in PRs, and revert with one command. P0, security, secret and contract findings can't be silenced |
+| Learning | 2-3 weeks of reactions, plus past PR comments, stored in the dashboard | Instant. Rules live in `.plumb/memory.json`, get reviewed in PRs, and revert with one command. P0, security, secret and contract findings can't be silenced |
 | Whose config applies | `greptile.json` is read from the PR's branch | Config, rules, memory and instruction files (CLAUDE.md, AGENTS.md) come from the base branch, so a PR can't loosen its own review or prompt-inject the reviewer |
 | Secrets and the model | The CLI holds back files that look sensitive | Secret values are redacted from every prompt and every output |
 | Big PRs | Docs advise splitting large PRs | Suggests a dependency-ordered split |
@@ -121,6 +121,7 @@ plumb review [paths...]        review uncommitted changes (default)
 plumb impact <symbol | file | file:line>   who calls this?
 plumb dismiss <id> -r "reason" [--scope file|dir|repo] [--downgrade]
 plumb remember "We use Result<T>, not exceptions, in src/payments"
+plumb learn owner/repo         propose rules from your team's past PR review comments
 plumb memory [list | forget <id>]
 plumb fix [ids] [--dry-run]    apply suggested fixes (only to lines unchanged since review)
 plumb fix-prompt               hand the last review to a coding agent
@@ -145,7 +146,9 @@ plumb mcp                      MCP server for Claude Code, Cursor, Codex
 }
 ```
 
-It takes effect on the next run. Every review lists what memory hid and which rule hid it. In GitHub, replying `/plumb dismiss <reason>` to a finding commits the rule to the PR branch, so the lesson gets reviewed like any other change. `plumb remember` adds preferences the reviewer should follow.
+It takes effect on the next run. Every review lists what memory hid and which rule hid it.
+
+`plumb learn owner/repo` reads the human review comments in the repo's PR history and proposes rules your team already enforces. A rule needs at least two real comments behind it, each one links back to the comment it came from, and you approve rules one at a time before anything is saved. In GitHub, replying `/plumb dismiss <reason>` to a finding commits the rule to the PR branch, so the lesson gets reviewed like any other change. `plumb remember` adds preferences the reviewer should follow.
 
 ## Score and merge gate
 
@@ -183,9 +186,9 @@ Results land in `bench/results/`.
 
 ## Status
 
-Working: everything above, covered by 37 tests (diff parsing, extraction across languages, every static check, the full pipeline with a scripted model, secret hygiene, the trust model, the toolchain layer, repro runs against real test files, the GitHub and GitLab flows against fake APIs, and the MCP server over stdio).
+Working: everything above, covered by 38 tests (diff parsing, extraction across languages, every static check, the full pipeline with a scripted model, secret hygiene, the trust model, the toolchain layer, repro runs against real test files, the GitHub and GitLab flows against fake APIs, and the MCP server over stdio).
 
-Not done yet: a live model run of the full benchmark, Bitbucket, a hosted dashboard, sandboxing for `--repro`, learning from historical PR review comments.
+Not done yet: a live model run of the full benchmark, Bitbucket, a hosted dashboard, sandboxing for `--repro`.
 
 ## License
 

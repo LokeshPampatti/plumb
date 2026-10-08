@@ -228,6 +228,52 @@ program
   });
 
 program
+  .command('learn')
+  .description("Propose team rules from the human review comments in a GitHub repo's PR history (asks before saving)")
+  .argument('<repo>', 'owner/repo')
+  .option('--max <n>', 'comments to read', '300')
+  .addOption(new Option('--provider <name>', 'model provider').choices(['anthropic', 'openai', 'ollama', 'claude-code']))
+  .option('--model <id>', 'model id')
+  .option('-y, --yes', 'save every proposed rule without asking')
+  .option('--dry-run', 'only show the comments that would be read')
+  .action(async (repoArg: string, o) => {
+    const { fetchReviewComments, proposeRules } = await import('./learn.js');
+    const { makeProvider } = await import('./llm/factory.js');
+    const [owner, repo] = repoArg.split('/');
+    if (!owner || !repo) throw new Error('Usage: plumb learn owner/repo');
+    const comments = await fetchReviewComments(owner, repo, Number(o.max));
+    console.log(`${comments.length} human review comments from ${owner}/${repo}.`);
+    if (o.dryRun || !comments.length) {
+      for (const c of comments.slice(0, 20)) console.log(pc.dim(`  #${c.pr} ${c.path}: ${c.body.replace(/\s+/g, ' ').slice(0, 110)}`));
+      return;
+    }
+    const provider = makeProvider({ ...DEFAULT_CONFIG.model, provider: o.provider ?? detectProvider(), name: o.model });
+    if (!provider) throw new Error('Pick a model with --provider (claude-code uses your Claude plan).');
+    const rules = await proposeRules(provider, comments);
+    if (!rules.length) {
+      console.log('No rule had at least two supporting comments.');
+      return;
+    }
+    const root = repoRoot(process.cwd());
+    const mem = loadMemory(root);
+    let saved = 0;
+    for (const r of rules) {
+      console.log(`\n${pc.bold(r.text)}${r.paths?.length ? pc.dim(`  (${r.paths.join(', ')})`) : ''}`);
+      for (const e of r.evidence.slice(0, 3)) console.log(pc.dim(`  "${e.body.replace(/\s+/g, ' ').slice(0, 100)}" @${e.author} ${e.url}`));
+      if (o.yes || (await confirm('Save this rule? [y/N] '))) {
+        addPreference(mem, r.text, undefined, {
+          paths: r.paths,
+          source: 'learned',
+          evidence: r.evidence.map((e) => ({ date: new Date().toISOString().slice(0, 10), who: e.author, url: e.url, reason: e.body.slice(0, 200) })),
+        });
+        saved++;
+      }
+    }
+    saveMemory(root, mem);
+    console.log(pc.dim(`\nSaved ${saved} rule(s) to .plumb/memory.json. Review them with \`plumb memory\`; commit the file to share them.`));
+  });
+
+program
   .command('memory')
   .description('Show or edit what Plumb has learned')
   .argument('[action]', 'list | forget', 'list')
