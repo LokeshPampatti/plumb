@@ -146,9 +146,9 @@ plumb mcp                      MCP server for Claude Code, Cursor, Codex
 }
 ```
 
-It takes effect on the next run. Every review lists what memory hid and which rule hid it.
+It takes effect on the next run. Every review lists what memory hid and which rule hid it. In GitHub, replying `/plumb dismiss <reason>` to a finding commits the rule to the PR branch, so the lesson gets reviewed like any other change. `plumb remember` adds preferences the reviewer should follow.
 
-`plumb learn owner/repo` reads the human review comments in the repo's PR history and proposes rules your team already enforces. A rule needs at least two real comments behind it, each one links back to the comment it came from, and you approve rules one at a time before anything is saved. In GitHub, replying `/plumb dismiss <reason>` to a finding commits the rule to the PR branch, so the lesson gets reviewed like any other change. `plumb remember` adds preferences the reviewer should follow.
+`plumb learn owner/repo` reads the human review comments in the repo's PR history and proposes rules your team already enforces. A rule needs at least two real comments behind it, each one links back to the comment it came from, and you approve rules one at a time before anything is saved.
 
 ## Score and merge gate
 
