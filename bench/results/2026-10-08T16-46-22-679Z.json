@@ -1,0 +1,191 @@
+{
+ "summary": {
+  "at": "2026-10-08T16:46:22.679Z",
+  "mode": "exchange/default",
+  "cases": 8,
+  "plumb": {
+   "caught": 3,
+   "rate": 0.375,
+   "staticCatches": 0,
+   "avgFindings": 2.125,
+   "usd": 0,
+   "seconds": 1844.7000000000003
+  },
+  "others": {
+   "greptile": 7,
+   "cursor": 3,
+   "copilot": 4,
+   "coderabbit": 2,
+   "graphite": 0
+  },
+  "caughtByPlumbOnly": []
+ },
+ "results": [
+  {
+   "id": "sentry-3",
+   "bug": "sample_rate = 0.0 is falsy and skipped",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 2,
+   "findingTitles": [
+    "[P1] src/sentry/search/events/datasets/discover.py:1046 upsampled_count sums raw sample_weight, so events without a weight count as zero",
+    "[P2] src/sentry/api/helpers/error_upsampling.py:135 Substring check treats \"!event.type:error\" and OR'd queries as error-only queries"
+   ],
+   "usd": 0,
+   "seconds": 332.3,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "sentry-4",
+   "bug": "Null reference if github_authenticated_user state is missing",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] src/sentry/integrations/github/integration.py:401 OAuth state is the static pipeline signature, so it gives no CSRF protection"
+   ],
+   "usd": 0,
+   "seconds": 312.9,
+   "others": [
+    "copilot",
+    "cursor"
+   ]
+  },
+  {
+   "id": "sentry-5",
+   "bug": "Breaking changes in error response format",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 7,
+   "findingTitles": [
+    "[P1] src/sentry/workflow_engine/endpoints/validators/base/detector.py:37 Detector owner is never checked against the request's organization",
+    "[P2] src/sentry/replays/endpoints/project_replay_summarize_breadcrumbs.py:100 Every paginated page gets every replay error injected into its summary",
+    "[P2] src/sentry/replays/endpoints/project_replay_summarize_breadcrumbs.py:153 Error timestamps (seconds) are compared to recording event timestamps (milliseconds)",
+    "[P2] static/app/components/events/eventAttachments.tsx:143 Long attachment names no longer truncate after FlexCenter swap",
+    "[P2] static/app/components/replays/breadcrumbs/breadcrumbItem.tsx:114 Analytics event key renamed to 'replay.view-html' without updating the event registry",
+    "[P2] static/app/views/performance/newTraceDetails/traceDrawer/details/span/eapSections/attributes.tsx:62 HIDDEN_ATTRIBUTES are only hidden while a search query is typed",
+    "[P2] static/app/views/performance/newTraceDetails/traceTabsAndVitals.tsx:93 Flex migration drops align-items:center and gap from the trace tabs/vitals header"
+   ],
+   "usd": 0,
+   "seconds": 310.7,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "sentry-6",
+   "bug": "Inconsistent metric tagging with 'shard' and 'shards'",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 1,
+   "findingTitles": [
+    "[P1] src/sentry/spans/consumers/process/flusher.py:253 Hung flusher process is never killed: SpawnProcess is not a multiprocessing.Process"
+   ],
+   "usd": 0,
+   "seconds": 190.9,
+   "others": [
+    "greptile",
+    "copilot"
+   ]
+  },
+  {
+   "id": "sentry-7",
+   "bug": "Shared mutable default in dataclass timestamp",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "queued default is timezone.now() evaluated once at import, so every source shares one timestamp",
+    "file": "src/sentry/integrations/services/assignment_source.py",
+    "line": 18,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #0 identifies the planted bug exactly: the dataclass field `queued` uses `timezone.now()` as its default, which is evaluated once at class definition, so all AssignmentSource instances share one stale timestamp. It points at the field in assignment_source.py, explains the impact on serialized task kwargs and any ordering or expiry logic, and proposes default_factory as the fix.",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] src/sentry/integrations/services/assignment_source.py:18 queued default is timezone.now() evaluated once at import, so every source shares one timestamp"
+   ],
+   "usd": 0,
+   "seconds": 88.2,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "sentry-8",
+   "bug": "Using stale config variable instead of updated one",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Monitor context returns raw config, discarding the copy with the readable schedule_type",
+    "file": "src/sentry/monitors/logic/incident_occurrence.py",
+    "line": 168,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #0 identifies that get_monitor_environment_context builds an updated config copy (schedule_type replaced with display name) but returns the original monitor.config instead, which is the stale-vs-updated config variable bug; it points at the function in incident_occurrence.py and explains the impact (raw integer schedule_type in monitor context, updated copy is dead code).",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] src/sentry/monitors/logic/incident_occurrence.py:168 Monitor context returns raw config, discarding the copy with the readable schedule_type"
+   ],
+   "usd": 0,
+   "seconds": 119.5,
+   "others": [
+    "greptile",
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "sentry-9",
+   "bug": "Invalid queue.ShutDown exception handling",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 3,
+   "findingTitles": [
+    "[P0] src/sentry/remote_subscriptions/consumers/queue_consumer.py:335 close() shuts down the factory-shared queue pool, so after a rebalance messages are dropped",
+    "[P1] src/sentry/remote_subscriptions/consumers/queue_consumer.py:185 Unbounded work queues give no backpressure, so a consumer backlog is loaded into memory",
+    "[P1] src/sentry/remote_subscriptions/consumers/queue_consumer.py:287 Arroyo commit callback is called from a background thread instead of the consumer thread"
+   ],
+   "usd": 0,
+   "seconds": 349.5,
+   "others": [
+    "greptile",
+    "copilot"
+   ]
+  },
+  {
+   "id": "sentry-10",
+   "bug": "Incomplete implementation (only contains pass)",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "MetricAlertDetectorHandler is now an abstract class and raises TypeError when instantiated",
+    "file": "src/sentry/incidents/grouptype.py",
+    "line": 11,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #0 points at MetricAlertDetectorHandler in src/sentry/incidents/grouptype.py, whose body is only `pass`, so it implements none of StatefulDetectorHandler's abstract methods (including the new build_occurrence_and_event_data). It explains the impact: instantiating it raises TypeError. That is the same root cause as the known bug, an incomplete implementation containing only pass.",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] src/sentry/incidents/grouptype.py:11 MetricAlertDetectorHandler is now an abstract class and raises TypeError when instantiated"
+   ],
+   "usd": 0,
+   "seconds": 140.7,
+   "others": [
+    "greptile",
+    "cursor"
+   ]
+  }
+ ]
+}

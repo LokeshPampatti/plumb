@@ -1,0 +1,204 @@
+{
+ "summary": {
+  "at": "2026-10-08T17:00:59.079Z",
+  "mode": "exchange/default",
+  "cases": 8,
+  "plumb": {
+   "caught": 4,
+   "rate": 0.5,
+   "staticCatches": 0,
+   "avgFindings": 2.625,
+   "usd": 0,
+   "seconds": 1645.1000000000001
+  },
+  "others": {
+   "greptile": 7,
+   "cursor": 5,
+   "copilot": 5,
+   "coderabbit": 3,
+   "graphite": 0
+  },
+  "caughtByPlumbOnly": []
+ },
+ "results": [
+  {
+   "id": "discourse-3",
+   "bug": "BlockedEmail.should_block? modifies DB during read",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Match stats for blocked emails are rolled back when the user save fails",
+    "file": "app/models/blocked_email.rb",
+    "line": 14,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #0 points at app/models/blocked_email.rb should_block? and flags that this check writes match_count/last_match_at to the DB while being called as a read/validation predicate. That is the same root cause as the known bug (a predicate with DB-writing side effects). It explains the concrete impact (the writes run inside the user's save transaction and are rolled back, plus a read-modify-write race) and recommends moving the write out of the check, which addresses the planted bug.",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] app/models/blocked_email.rb:14 Match stats for blocked emails are rolled back when the user save fails"
+   ],
+   "usd": 0,
+   "seconds": 176.7,
+   "others": [
+    "greptile",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-4",
+   "bug": "SSRF vulnerability using open(url) without validation",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Kernel#open on an admin-set URL allows shell command execution and local file reads",
+    "file": "app/jobs/scheduled/poll_feed.rb",
+    "line": 29,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #2 identifies the same root cause: open(url) / open(SiteSetting.feed_polling_url) called on an unvalidated URL with no scheme check, and it explicitly names import_remote's open(url) as having the same flaw. It explains the impact as arbitrary resource access (local file reads, command execution) by way of Kernel#open. That is the same unvalidated open(url) flaw behind the SSRF, even though the finding does not use the word SSRF. The other findings cover XSS, spam topics, URL rewriting, import robustness, and Redis throttling, none of which match.",
+   "findings": 7,
+   "findingTitles": [
+    "[P0] app/models/topic_embed.rb:13 Embed URL interpolated unescaped into raw HTML footer, giving anonymous stored XSS",
+    "[P1] app/controllers/embed_controller.rb:15 Anonymous requests can create unlimited topics by varying the embed_url query string",
+    "[P1] app/jobs/scheduled/poll_feed.rb:29 Kernel#open on an admin-set URL allows shell command execution and local file reads",
+    "[P2] app/models/post.rb:133 raw_html cook method serves external feed/page HTML verbatim with no sanitization",
+    "[P2] app/models/topic_embed.rb:64 Protocol-relative URLs (//cdn/x.png) are rewritten into broken same-host paths",
+    "[P2] lib/tasks/disqus.thor:148 Disqus import now fetches each thread URL live and aborts on the first dead link",
+    "[P2] lib/topic_retriever.rb:27 Non-atomic SETNX then EXPIRE can throttle a URL forever"
+   ],
+   "usd": 0,
+   "seconds": 477.2,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-5",
+   "bug": "Mixing float: left with flexbox causes layout issues",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 172.1,
+   "others": [
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "discourse-6",
+   "bug": "String mutation with << operator",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 2,
+   "findingTitles": [
+    "[P2] app/serializers/user_serializer.rb:138 Website disappears from profile when URI() cannot parse it",
+    "[P2] app/serializers/user_serializer.rb:153 include_website_name is missing the trailing ?, so the serializer never calls it"
+   ],
+   "usd": 0,
+   "seconds": 116,
+   "others": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-7",
+   "bug": "Inconsistent theme color lightness affects visibility",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Light-theme link color changed from 30% to 70%, and the dark value is inverted",
+    "file": "app/assets/stylesheets/desktop/topic-post.scss",
+    "line": 291,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "The known bug is an inconsistent light/dark lightness value in the scale-color conversion that hurts visibility. Finding #0 points at desktop/topic-post.scss where the light-theme value moved from the original 30% to 70% (and the dark value is correspondingly inverted), breaking the X% -> (100-X)% mapping and washing out the link, which is the same root cause and impact. The other findings describe different, separate lightness changes in other rules.",
+   "findings": 4,
+   "findingTitles": [
+    "[P2] app/assets/stylesheets/desktop/topic-post.scss:291 Light-theme link color changed from 30% to 70%, and the dark value is inverted",
+    "[P2] app/assets/stylesheets/desktop/user.scss:522 User .name light-theme color changed from 30% to 50% (desktop and mobile)",
+    "[P2] app/assets/stylesheets/mobile/modal.scss:102 Light/dark lightness values are swapped for .custom-message-length on mobile",
+    "[P2] app/assets/stylesheets/mobile/topic-post.scss:182 Mobile h3 light-theme color changed from 20% to 50%"
+   ],
+   "usd": 0,
+   "seconds": 130.8,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-8",
+   "bug": "Race conditions in async member loading",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 2,
+   "findingTitles": [
+    "[P2] app/assets/javascripts/admin/controllers/admin-group.js.es6:13 totalPages uses floor+1, so exact multiples of the page size get a phantom empty page",
+    "[P2] app/controllers/groups_controller.rb:22 Public group members page now silently capped at 50 members with no way to page"
+   ],
+   "usd": 0,
+   "seconds": 145.7,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "discourse-9",
+   "bug": "Thread-safety issue with lazy @loaded_locales",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 175.4,
+   "others": [
+    "greptile",
+    "copilot"
+   ]
+  },
+  {
+   "id": "discourse-10",
+   "bug": "NoMethodError before_validation in EmbeddableHost",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "before_validation calls sub! on a possibly nil host and raises NoMethodError",
+    "file": "app/models/embeddable_host.rb",
+    "line": 5,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #3 points at the before_validation callback in app/models/embeddable_host.rb and says self.host.sub! raises NoMethodError when host is nil. That is the same root cause as the known bug. It also covers the impact: a 500 error instead of a validation error, and valid? cannot be used on a blank record.",
+   "findings": 5,
+   "findingTitles": [
+    "[P0] db/migrate/20150818190757_create_embeddable_hosts.rb:9 Migration crashes when embed_category was never set (zero rows indexed with [0])",
+    "[P1] db/migrate/20150818190757_create_embeddable_hosts.rb:24 Migrated hosts are inserted raw, so 'http://...' entries stop matching and embeds break",
+    "[P2] app/models/embeddable_host.rb:2 Validation accepts ports that can never match and rejects TLDs longer than 5 chars",
+    "[P2] app/models/embeddable_host.rb:5 before_validation calls sub! on a possibly nil host and raises NoMethodError",
+    "[P2] app/models/embeddable_host.rb:17 Host lookup lowercases only the column, not the incoming host"
+   ],
+   "usd": 0,
+   "seconds": 251.2,
+   "others": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ]
+  }
+ ]
+}

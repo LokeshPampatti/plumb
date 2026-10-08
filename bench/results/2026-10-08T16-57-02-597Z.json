@@ -1,0 +1,204 @@
+{
+ "summary": {
+  "at": "2026-10-08T16:57:02.597Z",
+  "mode": "exchange/default",
+  "cases": 8,
+  "plumb": {
+   "caught": 4,
+   "rate": 0.5,
+   "staticCatches": 0,
+   "avgFindings": 1.875,
+   "usd": 0,
+   "seconds": 1408.7
+  },
+  "others": {
+   "greptile": 7,
+   "cursor": 6,
+   "copilot": 5,
+   "coderabbit": 5,
+   "graphite": 3
+  },
+  "caughtByPlumbOnly": []
+ },
+ "results": [
+  {
+   "id": "grafana-3",
+   "bug": "Undefined endpoint constants causing compilation errors",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 125,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "grafana-4",
+   "bug": "Double interpolation risk",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 270.8,
+   "others": [
+    "copilot",
+    "cursor"
+   ]
+  },
+  {
+   "id": "grafana-5",
+   "bug": "Missing key prop causing React rendering issues",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Grafana rule items in the filtered list lost their React key",
+    "file": "public/app/features/alerting/unified/rule-list/FilterView.tsx",
+    "line": 157,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #2 identifies that GrafanaRuleListItem in FilterView.tsx is rendered without a key prop (while the other branches still pass one), and explains the impact: React missing-key warnings and position-based reconciliation that can attach state to the wrong rule. This matches the known missing-key-prop bug in both root cause and location.",
+   "findings": 4,
+   "findingTitles": [
+    "[P2] public/app/features/alerting/unified/hooks/useAbilities.ts:245 useAllAlertRuleAbilities no longer treats federated rule groups as immutable",
+    "[P2] public/app/features/alerting/unified/hooks/useAbilities.ts:324 Pause/Export/Restore/DeletePermanently dropped for Grafana recording rules",
+    "[P2] public/app/features/alerting/unified/rule-list/FilterView.tsx:157 Grafana rule items in the filtered list lost their React key",
+    "[P2] public/app/features/alerting/unified/rule-list/GrafanaRuleListItem.tsx:47 Silence menu item does nothing in the new list view because only promRule is passed"
+   ],
+   "usd": 0,
+   "seconds": 237.9,
+   "others": [
+    "greptile",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "grafana-6",
+   "bug": "Incorrect metrics recording methods causing misleading performance tracking",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Unified-storage failures are recorded as legacy-storage metrics",
+    "file": "pkg/apiserver/rest/dualwriter_mode3.go",
+    "line": 45,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #1 matches the known bug's root cause. In dualwriter_mode3.go it shows that a failed Storage.Create (and Update) is recorded with recordLegacyDuration when it should use recordStorageDuration, and it explains the effect: storage errors are attributed to legacy, so the performance and health metrics mislead. Finding #3 points to the same class of mismatch in DeleteCollection, but #1 is the most direct match.",
+   "findings": 4,
+   "findingTitles": [
+    "[P1] pkg/apiserver/rest/dualwriter_mode3.go:51 Background legacy writes use a context derived from the request, which is cancelled on return",
+    "[P2] pkg/apiserver/rest/dualwriter_mode3.go:45 Unified-storage failures are recorded as legacy-storage metrics",
+    "[P2] pkg/apiserver/rest/dualwriter_mode3.go:106 Delete metric uses the object name as the label, not the kind",
+    "[P2] pkg/apiserver/rest/dualwriter_mode3.go:166 Legacy DeleteCollection result is recorded as a storage metric"
+   ],
+   "usd": 0,
+   "seconds": 137,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor",
+    "graphite"
+   ]
+  },
+  {
+   "id": "grafana-7",
+   "bug": "Incorrect error level logging",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Leftover debug logging at Error level dumps every batch's full ID list",
+    "file": "pkg/services/annotations/annotationsimpl/xorm_store.go",
+    "line": 534,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #0 flags routine/debug cleanup logging emitted at Error level in xorm_store.go (lines 534, 554/557, 576/579), which is the planted 'incorrect error level logging' bug, and explains the impact (error-level noise, tripped alerts, log flooding).",
+   "findings": 4,
+   "findingTitles": [
+    "[P1] pkg/services/annotations/annotationsimpl/xorm_store.go:534 Leftover debug logging at Error level dumps every batch's full ID list",
+    "[P2] pkg/services/annotations/annotationsimpl/xorm_store.go:608 Placeholder path breaks on Postgres/MySQL when batch size exceeds 65535",
+    "[P2] pkg/services/annotations/annotationsimpl/xorm_store.go:609 Quadratic string building when inlining IDs into the SQLite DELETE",
+    "[P2] pkg/services/cleanup/cleanup.go:77 Cleanup interval cut from 10 minutes to 1 minute, a 10x increase in cleanup load"
+   ],
+   "usd": 0,
+   "seconds": 224,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "graphite"
+   ]
+  },
+  {
+   "id": "grafana-8",
+   "bug": "Deadlock potential during concurrent annotation deletion operations",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] pkg/api/webassets/webassets.go:48 Double-checked locking without a re-check: waiters reload and can overwrite a good cache"
+   ],
+   "usd": 0,
+   "seconds": 108.5,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "grafana-9",
+   "bug": "enableSqlExpressions function always returns false, disabling SQL functionality",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "enableSqlExpressions always returns false, so the sqlExpressions feature flag is ignored",
+    "file": "pkg/expr/reader.go",
+    "line": 194,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #0 identifies the exact planted bug: enableSqlExpressions in pkg/expr/reader.go returns false on every path, so the sqlExpressions feature flag is ignored. It also states the impact: every SQL expression is rejected even when the flag is enabled.",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] pkg/expr/reader.go:194 enableSqlExpressions always returns false, so the sqlExpressions feature flag is ignored"
+   ],
+   "usd": 0,
+   "seconds": 119.5,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor",
+    "graphite"
+   ]
+  },
+  {
+   "id": "grafana-10",
+   "bug": "Race condition in cache locking",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] pkg/storage/unified/resource/search.go:173 Parallel index builds in init race on the shared err and counter, so build errors can be lost"
+   ],
+   "usd": 0,
+   "seconds": 186,
+   "others": [
+    "greptile",
+    "cursor"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,187 @@
+{
+ "summary": {
+  "at": "2026-10-08T17:03:52.100Z",
+  "mode": "exchange/default",
+  "cases": 8,
+  "plumb": {
+   "caught": 3,
+   "rate": 0.375,
+   "staticCatches": 0,
+   "avgFindings": 1.5,
+   "usd": 0,
+   "seconds": 1818.1
+  },
+  "others": {
+   "greptile": 6,
+   "cursor": 6,
+   "copilot": 4,
+   "coderabbit": 5,
+   "graphite": 0
+  },
+  "caughtByPlumbOnly": []
+ },
+ "results": [
+  {
+   "id": "keycloak-3",
+   "bug": "Returns wrong provider (default keystore instead of BouncyCastle)",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] common/src/main/java/org/keycloak/common/crypto/CryptoIntegration.java:64 Multiple full crypto providers with equal order are now silently tie-broken by classpath order"
+   ],
+   "usd": 0,
+   "seconds": 165.7,
+   "others": [
+    "greptile",
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "keycloak-4",
+   "bug": "Incorrect method call for exit codes",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 144.7,
+   "others": []
+  },
+  {
+   "id": "keycloak-5",
+   "bug": "Inconsistent feature flag bug causing orphaned permissions",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] services/src/main/java/org/keycloak/services/resources/admin/permissions/ClientPermissionsV2.java:87 canView() ignores the all-clients MANAGE permission, so manage-all admins cannot list clients"
+   ],
+   "usd": 0,
+   "seconds": 314.4,
+   "others": [
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-6",
+   "bug": "Incorrect permission check in canManage() method",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "canManage() grants group management to admins who only hold the VIEW scope on all groups",
+    "file": "services/src/main/java/org/keycloak/services/resources/admin/permissions/GroupPermissionsV2.java",
+    "line": 70,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #1 targets canManage() in GroupPermissionsV2.java and names the incorrect permission check: it accepts the VIEW scope on all groups when it should require MANAGE. It also gives the impact (view-only admins pass requireManage and can create or manage groups). That is the same root cause as the known bug, at the code that has it.",
+   "findings": 3,
+   "findingTitles": [
+    "[P1] services/src/main/java/org/keycloak/services/resources/admin/UsersResource.java:453 User search no longer filters results by per-user canView, leaking users to query-only admins",
+    "[P2] services/src/main/java/org/keycloak/services/resources/admin/permissions/GroupPermissionsV2.java:70 canManage() grants group management to admins who only hold the VIEW scope on all groups",
+    "[P2] services/src/main/java/org/keycloak/services/resources/admin/permissions/GroupPermissionsV2.java:122 getGroupIdsWithViewPermission uses the authz resource id where the group id (resource name) is needed"
+   ],
+   "usd": 0,
+   "seconds": 259.8,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-7",
+   "bug": "Lithuanian translation files contain Italian text",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Lithuanian loginTotpStep1 replaced with Italian text",
+    "file": "themes/src/main/resources-community/theme/base/login/messages/messages_lt.properties",
+    "line": 71,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #4 identifies the planted bug exactly: the Lithuanian login messages_lt.properties loginTotpStep1 value was replaced with Italian text ('Installa una delle seguenti applicazioni sul tuo cellulare:'), points at the file/line, and explains the impact (Lithuanian-locale users see Italian during OTP setup). Finding #2 reports the same root cause in the account-theme messages_lt.properties, so both match; #4 is selected as the more complete one.",
+   "findings": 5,
+   "findingTitles": [
+    "[P2] js/apps/admin-ui/maven-resources/theme/keycloak.v2/admin/messages/messages_en.properties:3136 Admin/account console bundles switched from i18next {{n}} to Java MessageFormat syntax",
+    "[P2] misc/theme-verifier/src/main/java/org/keycloak/themeverifier/VerifyMessageProperties.java:106 Overlapping prefix/suffix makes substring throw while reporting illegal HTML",
+    "[P2] themes/src/main/resources-community/theme/base/account/messages/messages_lt.properties:101 Lithuanian totpStep1 replaced with an Italian sentence",
+    "[P2] themes/src/main/resources-community/theme/base/account/messages/messages_zh_CN.properties:112 Simplified Chinese bundle gets a Traditional Chinese totpStep1",
+    "[P2] themes/src/main/resources-community/theme/base/login/messages/messages_lt.properties:71 Lithuanian loginTotpStep1 replaced with Italian text"
+   ],
+   "usd": 0,
+   "seconds": 475.3,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-8",
+   "bug": "Wrong parameter in null check (grantType vs. rawTokenId)",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Null check meant for rawTokenId checks grantType again, so null rawTokenId passes",
+    "file": "services/src/main/java/org/keycloak/protocol/oidc/encode/AccessTokenContext.java",
+    "line": 73,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #0 points at AccessTokenContext.java line 73, where the null check meant for rawTokenId tests grantType again instead. That is the same root cause as the known bug. It also explains the impact: a null rawTokenId is never validated and gets accepted at construction.",
+   "findings": 2,
+   "findingTitles": [
+    "[P2] services/src/main/java/org/keycloak/protocol/oidc/encode/AccessTokenContext.java:73 Null check meant for rawTokenId checks grantType again, so null rawTokenId passes",
+    "[P2] services/src/main/java/org/keycloak/protocol/oidc/encode/DefaultTokenContextEncoderProviderFactory.java:72 Grant shortcut length is never validated, but the decoder only accepts exactly 2 chars"
+   ],
+   "usd": 0,
+   "seconds": 209.7,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-9",
+   "bug": "Unsafe raw List deserialization without type safety",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 174.9,
+   "others": [
+    "greptile",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-10",
+   "bug": "Missing null check causing NullPointerException",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 73.6,
+   "others": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ]
+  }
+ ]
+}

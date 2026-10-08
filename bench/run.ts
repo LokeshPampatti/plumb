@@ -15,7 +15,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { PlumbConfig, ProviderName } from '../src/config.js';
+import { DEPTHS, type PlumbConfig, type ProviderName } from '../src/config.js';
 import { makeProvider } from '../src/llm/factory.js';
 import type { Provider } from '../src/llm/provider.js';
 import { keywords } from '../src/memory.js';
@@ -142,7 +142,13 @@ async function main() {
 
   const staticOnly = flag('static');
   const provider = (arg('provider') ?? 'none') as ProviderName;
-  const model: PlumbConfig['model'] = { provider, name: arg('model'), effort: (arg('effort') as PlumbConfig['model']['effort']) ?? 'high' };
+  const depth = arg('depth') as keyof typeof DEPTHS | undefined;
+  if (depth && !DEPTHS[depth]) {
+    console.error(`--depth must be one of ${Object.keys(DEPTHS).join(', ')}`);
+    process.exit(1);
+  }
+  const preset = depth ? DEPTHS[depth] : undefined;
+  const model: PlumbConfig['model'] = { provider, name: arg('model'), effort: (arg('effort') as PlumbConfig['model']['effort']) ?? preset?.effort ?? 'high' };
   const budget = Number(arg('budget') ?? '1');
   if (!staticOnly && provider !== 'none' && provider !== 'claude-code' && provider !== 'ollama' && provider !== 'exchange' && !flag('yes')) {
     console.error(`This run calls ${provider} for ${cases.length} cases with a $${budget.toFixed(2)} cap per case. Re-run with --yes to confirm.`);
@@ -163,7 +169,7 @@ async function main() {
         // GitHub diffs a PR from the merge-base (three-dot), not from the base branch tip.
         mode: { kind: 'range', from: c.mergeBase ?? c.base, to: c.head, worktreeIsHead: true },
         staticOnly,
-        config: { model, budgetUsd: budget, strictness: 2 },
+        config: { model, budgetUsd: budget, strictness: 2, ...(preset ? { votes: preset.votes, specialists: preset.specialists, verify: preset.verify } : {}) },
         confirmSpend: async () => true,
         prDescription: c.title,
         saveState: false,
@@ -212,7 +218,7 @@ async function main() {
   const tools = ['greptile', 'cursor', 'copilot', 'coderabbit', 'graphite'];
   const summary = {
     at: new Date().toISOString(),
-    mode: staticOnly ? 'static' : `${provider}/${model.name ?? 'default'}`,
+    mode: staticOnly ? 'static' : `${provider}/${model.name ?? 'default'}${depth ? `/${depth}` : ''}`,
     cases: n,
     plumb: { caught, rate: n ? caught / n : 0, staticCatches: results.filter((r) => r.how === 'static').length, avgFindings: n ? results.reduce((a, r) => a + r.findings, 0) / n : 0, usd: results.reduce((a, r) => a + r.usd, 0), seconds: results.reduce((a, r) => a + r.seconds, 0) },
     others: Object.fromEntries(tools.map((t) => [t, cases.filter((c) => c.caughtBy.includes(t)).length])),

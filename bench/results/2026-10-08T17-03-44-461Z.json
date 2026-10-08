@@ -1,0 +1,214 @@
+{
+ "summary": {
+  "at": "2026-10-08T17:03:44.461Z",
+  "mode": "exchange/default",
+  "cases": 8,
+  "plumb": {
+   "caught": 4,
+   "rate": 0.5,
+   "staticCatches": 0,
+   "avgFindings": 3.875,
+   "usd": 0,
+   "seconds": 1810.3
+  },
+  "others": {
+   "greptile": 7,
+   "cursor": 4,
+   "copilot": 5,
+   "coderabbit": 2,
+   "graphite": 0
+  },
+  "caughtByPlumbOnly": []
+ },
+ "results": [
+  {
+   "id": "cal.com-3",
+   "bug": "Null reference error if array is empty",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Crash when Google Meet is the location and there is no destination calendar",
+    "file": "packages/core/EventManager.ts",
+    "line": 118,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #0 identifies the planted bug: when evt.destinationCalendar is an empty array (or null), mainHostDestinationCalendar is undefined and reading .integration throws a TypeError in EventManager, which is the null reference on an empty array. It points at the code that has it and explains the impact.",
+   "findings": 9,
+   "findingTitles": [
+    "[P0] packages/core/EventManager.ts:118 Crash when Google Meet is the location and there is no destination calendar",
+    "[P1] packages/app-store/office365calendar/lib/CalendarService.ts:72 Calendar services ignore the new credentialId and always write to the first host's calendar",
+    "[P1] packages/trpc/server/routers/viewer/organizations/create.handler.ts:151 Org slug condition inverted: slug now set only when team billing is enabled",
+    "[P2] packages/app-store/googlecalendar/lib/CalendarService.ts:147 Destination calendars without credentialId now go to 'primary', and the Meet patch gets no calendarId",
+    "[P2] packages/app-store/googlecalendar/lib/CalendarService.ts:254 Update/delete fallback to the destination calendar can never match",
+    "[P2] packages/core/EventManager.ts:170 Video booking references no longer store their credentialId",
+    "[P2] packages/features/bookings/lib/handleCancelBooking.ts:449 Cancelling a recurring collective booking leaves other hosts' calendar events behind",
+    "[P2] packages/features/bookings/lib/handleNewBooking.ts:1063 Collective hosts' calendars are dropped when the organizer has no destination calendar",
+    "[P2] packages/types/Calendar.d.ts:171 Webhook payload shape of destinationCalendar changes from object/null to array"
+   ],
+   "usd": 0,
+   "seconds": 300.6,
+   "others": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ]
+  },
+  {
+   "id": "cal.com-4",
+   "bug": "Potential SQL injection risk in raw SQL query construction",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 1,
+   "findingTitles": [
+    "[P1] packages/lib/server/service/insightsBooking.ts:72 getBaseConditions returns an unparenthesized OR fragment, so callers that AND onto it bind wrongly"
+   ],
+   "usd": 0,
+   "seconds": 217.7,
+   "others": [
+    "greptile",
+    "copilot"
+   ]
+  },
+  {
+   "id": "cal.com-5",
+   "bug": "Missing database cleanup when immediateDelete is true",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 2,
+   "findingTitles": [
+    "[P2] packages/features/bookings/lib/handleCancelBooking.ts:484 Reminder cancellation writes are no longer awaited before the handler finishes",
+    "[P2] packages/features/ee/workflows/api/scheduleEmailReminders.ts:53 One failed SendGrid cancel aborts every cancellation in the cron run"
+   ],
+   "usd": 0,
+   "seconds": 223.9,
+   "others": [
+    "greptile",
+    "cursor"
+   ]
+  },
+  {
+   "id": "cal.com-6",
+   "bug": "Incorrect end time calculation using slotStartTime instead of slotEndTime",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Working-hours check requires the slot to fit every range on that day, not any one",
+    "file": "packages/trpc/server/routers/viewer/slots.ts",
+    "line": 139,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #4 is mainly about find-vs-some in the working-hours check, but it also says that `end` is computed from slotStartTime, so the slot end is never checked. That is the planted bug's root cause, the end time using slotStartTime instead of slotEndTime. It points at the working-hours check in packages/trpc/server/routers/viewer/slots.ts, the code that has the bug, and states the impact: the slot's end is never checked against working hours. No other finding mentions the end-time calculation.",
+   "findings": 5,
+   "findingTitles": [
+    "[P0] packages/trpc/server/routers/viewer/slots.ts:133 Slots on a date-override day return available without checking busy times",
+    "[P1] packages/lib/slots.ts:218 Shifted override minutes wrap at midnight, giving inverted or wrong-day ranges",
+    "[P1] packages/trpc/server/routers/viewer/slots.ts:106 Date-override check rejects slots in a second range and accepts partial overlaps",
+    "[P1] packages/trpc/server/routers/viewer/slots.ts:109 Override is matched to slots by UTC calendar date instead of the organizer's local date",
+    "[P1] packages/trpc/server/routers/viewer/slots.ts:139 Working-hours check requires the slot to fit every range on that day, not any one"
+   ],
+   "usd": 0,
+   "seconds": 366.4,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "cal.com-7",
+   "bug": "Timing attack vulnerability using direct string comparison",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 6,
+   "findingTitles": [
+    "[P0] packages/app-store/googlecalendar/lib/CalendarService.ts:97 Google credential key is overwritten with the safeParse wrapper instead of the token data",
+    "[P1] apps/web/pages/api/webhook/app-credential.ts:40 App metadata is looked up by slug, but app-store metadata is keyed by directory name",
+    "[P1] packages/app-store/_utils/oauth/parseRefreshTokenResponse.ts:5 Sync-mode schema has a bogus '[object Object]' key and strips every field except access_token",
+    "[P1] packages/app-store/_utils/oauth/refreshOAuthTokens.ts:8 Sync branch returns a raw fetch Response to callers that expect axios/gaxios/HubSpot objects",
+    "[P2] packages/app-store/salesforce/lib/CalendarService.ts:101 Salesforce refreshes the token on every instantiation, then builds the connection with the old one",
+    "[P2] packages/app-store/zoho-bigin/lib/CalendarService.ts:93 Zoho Bigin passes the credential id where refreshOAuthTokens expects the user id"
+   ],
+   "usd": 0,
+   "seconds": 279.1,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "cal.com-8",
+   "bug": "OR condition causes deletion of all workflow reminders",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] packages/features/ee/workflows/api/scheduleSMSReminders.ts:190 Unguarded update in catch block can throw and abort the whole reminder batch"
+   ],
+   "usd": 0,
+   "seconds": 100.2,
+   "others": [
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "cal.com-9",
+   "bug": "Case sensitivity bypass in email blacklist",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Blacklist and duplicate checks are case-sensitive, so mixed-case emails get past them",
+    "file": "packages/trpc/server/routers/viewer/bookings/addGuests.handler.ts",
+    "line": 74,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #1 identifies the exact root cause: BLACKLISTED_GUEST_EMAILS is lowercased but the incoming guest email is compared as typed, so a mixed-case email like 'Bad@Example.com' bypasses the blacklist. It points at the comparison in addGuests.handler.ts and explains the impact (blacklisted guest is added and emailed).",
+   "findings": 3,
+   "findingTitles": [
+    "[P2] packages/trpc/server/routers/viewer/bookings/addGuests.handler.ts:46 isTeamAdminOrOwner uses && so team admins who are not owners are rejected",
+    "[P2] packages/trpc/server/routers/viewer/bookings/addGuests.handler.ts:74 Blacklist and duplicate checks are case-sensitive, so mixed-case emails get past them",
+    "[P2] packages/trpc/server/routers/viewer/bookings/addGuests.handler.ts:168 Emails are sent with the raw guests list instead of the filtered uniqueGuests"
+   ],
+   "usd": 0,
+   "seconds": 138.5,
+   "others": [
+    "greptile",
+    "copilot"
+   ]
+  },
+  {
+   "id": "cal.com-10",
+   "bug": "Inaccurate cache status tracking due to unreliable updatedAt field",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "updateMany with empty data never bumps SelectedCalendar.updatedAt",
+    "file": "packages/app-store/googlecalendar/lib/CalendarService.ts",
+    "line": 1023,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #0 identifies the same root cause: the PR relies on SelectedCalendar.updatedAt to report cache status, but the updateMany call with empty data in CalendarService.ts never actually bumps updatedAt, so the 'last updated' timestamp the PR selects and shows is stale and does not reflect real cache activity. It points at the code that tries to refresh the timestamp and explains the impact (inaccurate cache status). Findings #1-#3 cover different issues: UI refetch, locale formatting, and select scope.",
+   "findings": 4,
+   "findingTitles": [
+    "[P2] packages/app-store/googlecalendar/lib/CalendarService.ts:1023 updateMany with empty data never bumps SelectedCalendar.updatedAt",
+    "[P2] packages/features/apps/components/CredentialActionsDropdown.tsx:42 Deleting the cache does not refetch connectedCalendars, so the UI shows stale cache status",
+    "[P2] packages/features/apps/components/CredentialActionsDropdown.tsx:89 Cache timestamp is always formatted as en-US, whatever the user's locale",
+    "[P2] packages/trpc/server/routers/viewer/calendars/deleteCache.handler.ts:17 Credential lookup has no select, so it loads credential.key just to check existence"
+   ],
+   "usd": 0,
+   "seconds": 183.9,
+   "others": [
+    "greptile",
+    "cursor"
+   ]
+  }
+ ]
+}
