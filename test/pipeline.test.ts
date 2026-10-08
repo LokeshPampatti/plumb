@@ -297,3 +297,39 @@ process.stdin.on('end', () => {
     }
   });
 });
+
+describe('repro', () => {
+  const setupJs = () => {
+    const r = tempRepo();
+    r.write({ 'src/cart.mjs': `export function total(items) {\n  let t = 0;\n  for (const i of items) t += i.price;\n  return t;\n}\n` });
+    r.commit('init');
+    r.write({ 'src/cart.mjs': `export function total(items) {\n  let t = 0;\n  for (let k = 1; k < items.length; k++) t += items[k].price;\n  return t;\n}\n` });
+    return r;
+  };
+  const finding = { file: 'src/cart.mjs', line: 3, severity: 'P1', category: 'logic', title: 'Loop skips the first item', body: 'Starts at 1.', evidence: [] };
+  const failing = `import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { total } from './cart.mjs';\ntest('counts every item', () => { assert.equal(total([{ price: 2 }, { price: 3 }]), 5); });\n`;
+  const passing = `import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { total } from './cart.mjs';\ntest('empty', () => { assert.equal(total([]), 0); });\n`;
+  const broken = `import { total } from './nope.mjs';\n`;
+
+  for (const [name, code, outcome, verification] of [
+    ['reproduced', failing, 'reproduced', 'reproduced'],
+    ['not-reproduced', passing, 'not-reproduced', 'confirmed'],
+    ['inconclusive', broken, 'inconclusive', 'confirmed'],
+  ] as const) {
+    it(`marks a ${name} bug correctly and cleans up`, async () => {
+      repo = setupJs();
+      const mock = new MockProvider({
+        find: () => ({ findings: [finding] }),
+        verify: () => ({ verdicts: [{ index: 0, verdict: 'confirmed', reason: 'ok' }] }),
+        chat: () => ({ code, expectation: 'total of two items is 5' }),
+      });
+      const r = await runReview({ cwd: repo.root, mode: { kind: 'working' }, provider: mock, verifier: mock, config: { budgetUsd: 5, repro: true } });
+      const f = r.findings[0];
+      expect(f.repro?.outcome).toBe(outcome);
+      expect(f.verification).toBe(verification);
+      expect(require('node:fs').existsSync(require('node:path').join(repo.root, 'src/cart.plumb-repro.test.mjs'))).toBe(false);
+      if (outcome === 'reproduced') expect(r.score.breakdown[0].reason).toContain('reproduced by a failing test');
+      if (outcome === 'not-reproduced') expect(r.score.breakdown[0].reason).toContain('repro test passed');
+    });
+  }
+});

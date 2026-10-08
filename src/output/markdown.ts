@@ -4,6 +4,7 @@ import type { Finding } from '../types.js';
 
 const SEV = { P0: '🔴 **P0**', P1: '🟠 **P1**', P2: '🔵 **P2**' } as const;
 const VERIF: Record<Finding['verification'], string> = {
+  reproduced: 'reproduced by a failing test',
   deterministic: 'proven by static analysis',
   confirmed: 'confirmed by an independent skeptic pass',
   unverified: 'not independently verified',
@@ -31,6 +32,17 @@ export function inlineComment(f: Finding, repoUrl?: string): string {
       const loc = repoUrl ? `[\`${e.file}:${e.line}\`](${repoUrl}/${e.file}#L${e.line})` : `\`${e.file}:${e.line}\``;
       lines.push(`- ${loc} ${e.note}${e.snippet ? `\n  \`\`\`\n  ${e.snippet}\n  \`\`\`` : ''}`);
     }
+    lines.push('\n</details>');
+  }
+  if (f.repro && f.repro.outcome !== 'inconclusive') {
+    lines.push('');
+    lines.push(`<details><summary>${f.repro.outcome === 'reproduced' ? '🧪 Reproduced: this test fails on the PR' : '🧪 Not reproduced: this test passed'}</summary>\n`);
+    lines.push('```');
+    lines.push(f.repro.test.trim());
+    lines.push('```');
+    lines.push('```text');
+    lines.push(f.repro.output.trim().split('\n').slice(-12).join('\n'));
+    lines.push('```');
     lines.push('\n</details>');
   }
   if (f.suggestion) {

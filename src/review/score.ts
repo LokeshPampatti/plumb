@@ -20,7 +20,7 @@ export function scoreReview(findings: Finding[], hist: HistoryReport): ScoreRepo
   let raw = 5;
   let p2Total = 0;
   for (const f of findings) {
-    const trust = f.verification === 'unverified' ? 0.6 : 1;
+    const trust = f.verification === 'unverified' || f.repro?.outcome === 'not-reproduced' ? 0.6 : 1;
     let d = WEIGHT[f.severity] * trust;
     if (f.severity === 'P2') {
       if (p2Total >= 1) continue;
@@ -28,7 +28,7 @@ export function scoreReview(findings: Finding[], hist: HistoryReport): ScoreRepo
       p2Total += d;
     }
     raw -= d;
-    breakdown.push({ delta: -round(d), reason: `${f.severity} ${f.file}:${f.line} ${f.title}${trust < 1 ? ' (unverified, weighted 60%)' : ''}` });
+    breakdown.push({ delta: -round(d), reason: `${f.severity} ${f.file}:${f.line} ${f.title}${trust < 1 ? (f.repro?.outcome === 'not-reproduced' ? ' (repro test passed, weighted 60%)' : ' (unverified, weighted 60%)') : f.verification === 'reproduced' ? ' (reproduced by a failing test)' : ''}` });
   }
   const serious = findings.some((f) => f.severity !== 'P2');
   if (serious && hist.riskLevel === 'critical') {

@@ -305,3 +305,39 @@ describe('secret heuristics', () => {
     expect(looksLikeSecretValue('apiKey', 'Zm9vYmFyYmF6cXV4' + 'UXVpY2tCcm93bkZveEp1bXBz')).toBe(true);
   });
 });
+
+describe('toolchain proof', () => {
+  it('reports tsc errors on added lines only, and skips pre-existing ones', async () => {
+    const { symlinkSync, mkdirSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    const { runToolchain } = await import('../src/analyzers/toolchain.js');
+    repo = tempRepo();
+    repo.write({
+      'tsconfig.json': JSON.stringify({ compilerOptions: { strict: true, noEmit: true, target: 'ES2020', module: 'commonjs' }, include: ['src'] }),
+      'src/a.ts': `export function add(a: number, b: number) { return a + b; }\nexport const old: number = 'already broken';\n`,
+      '.gitignore': 'node_modules\n',
+    });
+    mkdirSync(join(repo.root, 'node_modules'), { recursive: true });
+    symlinkSync(join(__dirname, '..', 'node_modules', 'typescript'), join(repo.root, 'node_modules', 'typescript'));
+    repo.commit('init');
+    repo.write({ 'src/a.ts': `export function add(a: number, b: number) { return a + b; }\nexport const old: number = 'already broken';\nexport const sum: string = add(1, 2);\n` });
+    const { findings, results } = await runToolchain(await ctxFor(repo));
+    expect(results[0]).toMatchObject({ tool: 'tsc', ran: true });
+    expect(results[0].diagnostics.length).toBe(2); // the old error and the new one
+    expect(findings.map((f) => `${f.file}:${f.line} ${f.rule}`)).toEqual(['src/a.ts:3 toolchain/tsc']);
+    expect(findings[0].title).toContain("Type 'number' is not assignable to type 'string'");
+  });
+
+  it('parses go vet and ruff output', async () => {
+    const { parseGoVet, parseRuff } = await import('../src/analyzers/toolchain.js');
+    expect(
+      parseGoVet(`# github.com/x/pkg/rest\nvet: pkg/rest/mode3.go:50:2: undefined: metricsEndpoint\npkg/rest/a.go:12:5: fmt.Sprintf call has arguments but no formatting directives\n`),
+    ).toEqual([
+      { file: 'pkg/rest/mode3.go', line: 50, code: 'govet', message: 'undefined: metricsEndpoint' },
+      { file: 'pkg/rest/a.go', line: 12, code: 'govet', message: 'fmt.Sprintf call has arguments but no formatting directives' },
+    ]);
+    expect(parseRuff(`[{"filename":"/r/src/x.py","location":{"row":4,"column":1},"code":"F821","message":"Undefined name \`foo\`"}]`, '/r')).toEqual([
+      { file: 'src/x.py', line: 4, code: 'F821', message: 'Undefined name `foo`' },
+    ]);
+  });
+});

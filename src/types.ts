@@ -17,6 +17,7 @@ export type Category =
 
 /** How a finding earned its place in the review. */
 export type Verification =
+  | 'reproduced' // a generated test fails on this code: the bug was demonstrated by running it
   | 'deterministic' // proven by static analysis, no model involved
   | 'confirmed' // a model raised it and an independent skeptic pass failed to refute it
   | 'unverified' // raised by a model, verification skipped or inconclusive
@@ -52,6 +53,8 @@ export interface Finding {
   memory?: { ruleId: string; action: 'downgraded' | 'suppressed' };
   /** Incremental status relative to the previous review of this branch. */
   status?: 'new' | 'open' | 'fixed';
+  /** Result of running a generated regression test (--repro). */
+  repro?: { outcome: 'reproduced' | 'not-reproduced' | 'inconclusive'; testPath: string; test: string; output: string };
 }
 
 export type FileStatus = 'added' | 'modified' | 'deleted' | 'renamed';

@@ -7,6 +7,7 @@ import { analyzeHistory, type HistoryReport } from '../analyzers/history.js';
 import { computeImpact, type Impact } from '../analyzers/impact.js';
 import { secretFindings } from '../analyzers/secrets.js';
 import { suggestSplit, type SplitPlan } from '../analyzers/split.js';
+import { runToolchain, type ToolResult } from '../analyzers/toolchain.js';
 import { loadConfig, SEVERITY_RANK, type PlumbConfig } from '../config.js';
 import { changedLineCount, commentableLines } from '../diff.js';
 import { collectChanges, currentBranch, headSha, type DiffMode } from '../git.js';
@@ -19,6 +20,7 @@ import type { Category, CostEstimate, Finding, Severity, Usage } from '../types.
 import { buildUnits, sharedContext, type ReviewUnit } from './contextpack.js';
 import { FINDER_SYSTEM, FINDINGS_SCHEMA, VERDICTS_SCHEMA, VERIFIER_SYSTEM } from './prompts.js';
 import { decideGate, scoreReview, type GateDecision, type ScoreReport } from './score.js';
+import { reproduce } from './repro.js';
 
 export const VERSION = '0.1.0';
 
@@ -39,6 +41,10 @@ export interface ReviewOptions {
   paths?: string[];
   log?: (msg: string) => void;
   saveState?: boolean;
+  /** Skip tsc / go vet / ruff even when installed. */
+  skipToolchain?: boolean;
+  /** Keep generated repro tests in .plumb/repro/. */
+  keepRepro?: boolean;
   gateContext?: Parameters<typeof decideGate>[4];
 }
 
@@ -61,6 +67,7 @@ export interface ReviewResult {
     linesRemoved: number;
     index: RepoIndex['stats'];
     configSources: string[];
+    toolchain: { tool: string; ran: boolean; ms: number; diagnostics: number; note?: string }[];
   };
   findings: Finding[];
   suppressed: Finding[];
@@ -172,6 +179,14 @@ export async function runReview(opts: ReviewOptions): Promise<ReviewResult> {
 
   // Deterministic layer: free, instant, never hallucinates.
   const staticFindings = [...contractFindings(ctx), ...secretFindings(ctx)].filter((f) => reviewFiles.has(f.file) || f.rule.startsWith('contract/'));
+  // The project's own compilers and correctness linters, on added lines only.
+  const toolchain = cfg.toolchain && !opts.skipToolchain ? await runToolchain(ctx, { log }) : { findings: [], results: [] };
+  for (const t of toolchain.findings) {
+    const same = staticFindings.find((f) => f.file === t.file && f.line === t.line);
+    if (same) same.evidence.push({ ...t.evidence[0], note: `also confirmed by ${t.evidence[0].note}` });
+    else staticFindings.push(t);
+  }
+  for (const r of toolchain.results) if (r.note && r.note !== 'typescript is not installed in node_modules') notes.push(`${r.tool}: ${r.note}`);
   const impact = computeImpact(ctx);
   const history = analyzeHistory(ctx);
   const split = suggestSplit(ctx);
@@ -299,6 +314,32 @@ export async function runReview(opts: ReviewOptions): Promise<ReviewResult> {
         if (e instanceof BudgetExceeded) notes.push(e.message + ' Remaining files got static checks only.');
         else throw e;
       }
+      // Proof by execution, only when asked: runs model-written tests on this machine.
+      if (cfg.repro && llmFindings.length) {
+        if (changes.headRef !== null) notes.push('--repro needs the reviewed code checked out; skipped.');
+        else {
+          try {
+            const repros = await reproduce(ctx, metered, llmFindings, { log, keepDir: opts.keepRepro ? '.plumb/repro' : undefined });
+            for (const rr of repros) {
+              const f = llmFindings.find((x) => x.id === rr.findingId);
+              if (!f) continue;
+              f.repro = { outcome: rr.outcome, testPath: rr.testPath, test: rr.testCode, output: rr.output };
+              if (rr.outcome === 'reproduced') {
+                f.verification = 'reproduced';
+                f.confidence = 0.97;
+              } else if (rr.outcome === 'not-reproduced') {
+                f.confidence = Math.min(f.confidence, 0.4);
+                f.verifierNote = `${f.verifierNote ? f.verifierNote + ' ' : ''}A generated test for this bug passed, so it was not demonstrated.`;
+              }
+            }
+            const n = repros.filter((r) => r.outcome === 'reproduced').length;
+            if (repros.length) notes.push(`Repro: ${n} of ${repros.length} serious finding(s) reproduced by a failing test.`);
+          } catch (e) {
+            if (e instanceof BudgetExceeded) notes.push(e.message + ' Repro stopped.');
+            else notes.push(`Repro failed: ${(e as Error).message}`);
+          }
+        }
+      }
       usage = addUsage(metered.usage, meteredVerifier !== metered ? (meteredVerifier as MeteredProvider).usage : emptyUsage());
     }
   } else if (!provider && !opts.staticOnly && cfg.model.provider === 'none') {
@@ -359,6 +400,7 @@ export async function runReview(opts: ReviewOptions): Promise<ReviewResult> {
       linesRemoved: lines.removed,
       index: newIndex.stats,
       configSources: loaded.sources,
+      toolchain: toolchain.results.map((r: ToolResult) => ({ tool: r.tool, ran: r.ran, ms: r.ms, diagnostics: r.diagnostics.length, note: r.note })),
     },
     findings,
     suppressed: memOut.suppressed,

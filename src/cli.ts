@@ -46,6 +46,7 @@ program
   .option('-b, --branch [base]', 'review the current branch against base (default: the repo default branch)')
   .option('--include-uncommitted', 'with --branch: include uncommitted edits too')
   .option('--range <a..b>', 'review a commit range')
+  .option('--pr <url>', 'review a GitHub pull request by URL or owner/repo#123 (no clone needed)')
   .addOption(new Option('--provider <name>', 'model provider').choices(['anthropic', 'openai', 'ollama', 'claude-code', 'none']))
   .option('--model <id>', 'model id')
   .option('--verifier-model <id>', 'model for the skeptic pass')
@@ -63,11 +64,28 @@ program
   .option('--sarif <file>', 'write SARIF 2.1.0')
   .option('--html <file>', 'write a standalone HTML report')
   .option('--show-refuted', 'also list model findings the skeptic discarded')
+  .option('--repro', 'write and run a failing test for each serious model finding (runs model-written code on this machine)')
+  .option('--keep-repro', 'with --repro: keep the generated tests in .plumb/repro/')
+  .option('--no-toolchain', "don't run tsc / go vet / ruff")
   .addOption(new Option('--fail-on <sev>', 'exit 1 if a finding at or above this severity exists').choices(['P0', 'P1', 'P2', 'none']))
   .action(async (paths: string[], o) => {
-    const root = repoRoot(process.cwd());
-    let mode: DiffMode = { kind: 'working' };
-    if (o.staged) mode = { kind: 'staged' };
+    let cwd = process.cwd();
+    let prDescription: string | undefined;
+    let prMode: DiffMode | null = null;
+    if (o.pr) {
+      const { parsePrSpec, preparePr } = await import('./remote.js');
+      const spec = parsePrSpec(o.pr);
+      if (!spec) throw new Error(`Not a pull request: ${o.pr}. Use a github.com/.../pull/N URL or owner/repo#N.`);
+      const prep = await preparePr(spec, (m) => process.stderr.write(pc.dim(`· ${m}\n`)));
+      cwd = prep.cwd;
+      prMode = prep.mode;
+      prDescription = `${prep.title}\n\n${prep.body}`;
+      process.stderr.write(pc.dim(`· Reviewing ${prep.url} (${prep.title})\n`));
+    }
+    const root = repoRoot(cwd);
+    let mode: DiffMode = prMode ?? { kind: 'working' };
+    if (prMode) mode = prMode;
+    else if (o.staged) mode = { kind: 'staged' };
     else if (o.branch !== undefined) mode = { kind: 'branch', base: typeof o.branch === 'string' ? o.branch : undefined, includeUncommitted: !!o.includeUncommitted };
     else if (o.range) {
       const [from, to] = String(o.range).split(/\.\.\.?/);
@@ -86,15 +104,19 @@ program
     if (o.verify === false) cfg.verify = false;
     if (o.budget !== undefined) cfg.budgetUsd = o.budget;
     if (o.strictness) cfg.strictness = Number(o.strictness) as 1 | 2 | 3;
+    if (o.repro) cfg.repro = true;
+    if (o.toolchain === false) cfg.toolchain = false;
 
     const quiet = o.json || o.md;
     const log = quiet ? () => {} : (m: string) => process.stderr.write(pc.dim(`· ${m}\n`));
     const result = await runReview({
-      cwd: process.cwd(),
+      cwd,
       mode,
+      prDescription,
       config: cfg,
       staticOnly: !!o.static,
       instructions: o.instructions,
+      keepRepro: !!o.keepRepro,
       paths,
       log,
       estimateOnly: !!o.estimate,

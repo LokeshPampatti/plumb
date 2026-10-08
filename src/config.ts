@@ -31,6 +31,10 @@ export interface PlumbConfig {
   reviewers: { suggest: boolean; max: number };
   split: { maxFiles: number; maxLines: number };
   context: { ruleFiles: string[]; maxCallers: number };
+  /** Run the project's own type checkers / correctness linters (tsc, go vet, ruff) when installed. */
+  toolchain: boolean;
+  /** Write and run a failing test for serious model findings. Runs model-written code. */
+  repro: boolean;
   failOn: Severity | 'none';
 }
 
@@ -65,6 +69,8 @@ export const DEFAULT_CONFIG: PlumbConfig = {
     ruleFiles: ['CLAUDE.md', 'AGENTS.md', '.cursorrules', '.cursor/rules/*.md', '.cursor/rules/*.mdc', '.github/copilot-instructions.md', 'CONTRIBUTING.md', '.greptile/rules.md'],
     maxCallers: 8,
   },
+  toolchain: true,
+  repro: false,
   failOn: 'none',
 };
 

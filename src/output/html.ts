@@ -17,6 +17,7 @@ const h = (s: unknown) =>
 const md = (s: string) => h(s).replace(/`([^`]+)`/g, '<code>$1</code>');
 
 const VERIF: Record<Finding['verification'], string> = {
+  reproduced: 'Reproduced by a failing test',
   deterministic: 'Proven by static analysis',
   confirmed: 'Confirmed by skeptic pass',
   unverified: 'Unverified',
@@ -57,6 +58,7 @@ function findingCard(f: Finding, i: number, src: (file: string) => string | null
     <p class="body">${md(f.body)}</p>
     ${ev ? `<ol class="evidence">${ev}</ol>` : ''}
     ${f.suggestion ? `<div class="fix"><div class="label">Suggested fix</div><pre>${h(f.suggestion)}</pre></div>` : ''}
+    ${f.repro && f.repro.outcome !== 'inconclusive' ? `<details class="repro"><summary>${f.repro.outcome === 'reproduced' ? 'Reproduced: this generated test fails on the change' : 'Not reproduced: this generated test passed'}</summary><pre>${h(f.repro.test)}</pre><pre class="out">${h(f.repro.output.split('\n').slice(-12).join('\n'))}</pre></details>` : ''}
     <footer>
       <span class="verif v-${f.verification}">${VERIF[f.verification]}</span>
       <span>${h(f.category)}</span>
@@ -183,7 +185,11 @@ h2 .kicker { display: block; margin-bottom: 8px; }
 .fix .label, .label { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ok); margin-bottom: 6px; }
 .fix pre { margin: 0; padding: 10px 14px; background: var(--code-bg); border-left: 2px solid var(--ok); overflow-x: auto; }
 .finding footer { display: flex; gap: 16px; flex-wrap: wrap; font: 400 12px var(--mono); color: var(--ink-2); }
-.v-deterministic, .v-confirmed { color: var(--ok); }
+.v-reproduced, .v-deterministic, .v-confirmed { color: var(--ok); }
+.repro { margin: 0 0 14px; font-size: 13px; }
+.repro summary { cursor: pointer; font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ok); }
+.repro pre { padding: 10px 14px; background: var(--code-bg); border-left: 2px solid var(--ok); overflow-x: auto; }
+.repro pre.out { border-left-color: var(--p0); }
 .v-unverified { color: var(--p1); }
 .skeptic { font-size: 13px; color: var(--ink-2); margin: 10px 0 0; max-width: 70ch; }
 .blast-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }

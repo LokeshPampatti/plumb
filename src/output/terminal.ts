@@ -5,6 +5,7 @@ import { redactSecrets } from '../redact.js';
 
 const SEV_COLOR = { P0: pc.red, P1: pc.yellow, P2: pc.cyan } as const;
 const VERIF_LABEL: Record<Finding['verification'], string> = {
+  reproduced: 'reproduced by a failing test',
   deterministic: 'proven by static analysis',
   confirmed: 'confirmed by skeptic pass',
   unverified: 'unverified',
@@ -66,6 +67,11 @@ export function renderTerminal(r: ReviewResult, opts: { width?: number; showRefu
         for (const l of f.suggestion.split('\n').slice(0, 12)) out.push(`       ${pc.green('+ ' + l)}`);
       }
       if (f.verifierNote && f.verification === 'confirmed') out.push(pc.dim(wrap(`skeptic: ${f.verifierNote}`, width - 5, '     ')));
+      if (f.repro) {
+        const label = f.repro.outcome === 'reproduced' ? pc.green('reproduced: the generated test fails on this code') : f.repro.outcome === 'not-reproduced' ? pc.yellow('not reproduced: the generated test passed') : pc.dim('repro inconclusive: the test could not run');
+        out.push(`     ${label} ${pc.dim(`(${f.repro.testPath})`)}`);
+        if (f.repro.outcome === 'reproduced') for (const l of f.repro.output.split('\n').filter((x) => /fail|assert|expect|error/i.test(x)).slice(0, 4)) out.push(pc.dim(`       ${l.trim().slice(0, width - 10)}`));
+      }
       out.push('');
     }
   }
