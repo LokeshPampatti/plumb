@@ -97,7 +97,7 @@ Everything in the Greptile column comes from Greptile's own docs (October 2026).
 | CI formats | PR comments | PR comments, SARIF 2.1.0 (GitHub code scanning), Markdown, JSON, HTML |
 | Analytics | Hosted dashboard | `plumb stats`, local: addressed rate, fixed vs dismissed, what the skeptic threw out |
 
-What Greptile has that Plumb doesn't: a hosted team dashboard, Jira/Linear/Confluence context, a hosted sandbox for running tests (Plumb's `--repro` runs locally or on your CI runner), GitLab/Bitbucket/Perforce support, SSO and SOC 2. Plumb is a developer tool, not yet a hosted product.
+What Greptile has that Plumb doesn't: a hosted team dashboard, Jira/Linear/Confluence context, a hosted sandbox for running tests (Plumb's `--repro` runs locally or on your CI runner), Bitbucket/Gitea/Perforce support, SSO and SOC 2. Plumb is a developer tool, not yet a hosted product.
 
 ## Commands
 
@@ -125,6 +125,7 @@ plumb fix-prompt               hand the last review to a coding agent
 plumb stats                    addressed rate, fixed vs dismissed, by category
 plumb hook install             pre-push hook: static checks, blocks P0
 plumb github                   run inside GitHub Actions
+plumb gitlab                   run inside GitLab CI on merge requests
 plumb mcp                      MCP server for Claude Code, Cursor, Codex
 ```
 
@@ -154,6 +155,10 @@ Risk comes from what the change touches: sensitive paths (auth, billing, migrati
 
 See [examples/plumb-workflow.yml](examples/plumb-workflow.yml). On each PR it keeps one summary comment up to date, posts inline comments only for new findings, resolves threads whose finding no longer reproduces, lists problems outside the diff in the summary, and approves when the gate passes. `/plumb review <instructions>` re-runs it. `/plumb dismiss <reason>` teaches it.
 
+## GitLab
+
+See [examples/gitlab-ci.yml](examples/gitlab-ci.yml). Same behavior on merge requests: one summary note kept up to date, inline discussions for new findings only, discussions resolved when their finding no longer reproduces, and approval when the gate passes. Needs a `GITLAB_TOKEN` CI variable (project access token with the `api` scope).
+
 ## MCP
 
 ```json
@@ -176,9 +181,9 @@ Results land in `bench/results/`.
 
 ## Status
 
-Working: everything above, covered by 35 tests (diff parsing, extraction across languages, every static check, the full pipeline with a scripted model, secret hygiene, the trust model, the toolchain layer, repro runs against real test files, the GitHub flow against a fake API, and the MCP server over stdio).
+Working: everything above, covered by 36 tests (diff parsing, extraction across languages, every static check, the full pipeline with a scripted model, secret hygiene, the trust model, the toolchain layer, repro runs against real test files, the GitHub and GitLab flows against fake APIs, and the MCP server over stdio).
 
-Not done yet: a live model run of the full benchmark, GitLab and Bitbucket, a hosted dashboard, sandboxing for `--repro`, learning from historical PR review comments.
+Not done yet: a live model run of the full benchmark, Bitbucket, a hosted dashboard, sandboxing for `--repro`, learning from historical PR review comments.
 
 ## License
 

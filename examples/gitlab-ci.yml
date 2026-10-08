@@ -1,0 +1,14 @@
+# Add to .gitlab-ci.yml. Needs a GITLAB_TOKEN CI variable (project access token,
+# api scope, Reporter or higher) and ANTHROPIC_API_KEY (masked).
+plumb:
+  image: node:20
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  variables:
+    GIT_DEPTH: 0
+    PLUMB_BUDGET_USD: "2"
+    PLUMB_FAIL_ON: "P0"
+  script:
+    - git clone --depth 1 https://github.com/LokeshPampatti/plumb.git /tmp/plumb
+    - cd /tmp/plumb && npm ci --no-audit --no-fund && npm run build && cd -
+    - node /tmp/plumb/bin/plumb.js gitlab

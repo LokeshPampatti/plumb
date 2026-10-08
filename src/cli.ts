@@ -371,6 +371,14 @@ program
   });
 
 program
+  .command('gitlab')
+  .description('Run inside GitLab CI on a merge request pipeline: summary note, inline discussions, resolves fixed ones')
+  .action(async () => {
+    const { runGitlab } = await import('./gitlab.js');
+    await runGitlab();
+  });
+
+program
   .command('mcp')
   .description('Start an MCP server (stdio) so Claude Code, Cursor or Codex can call Plumb')
   .action(async () => {
