@@ -333,3 +333,25 @@ describe('repro', () => {
     });
   }
 });
+
+describe('plumb fix', () => {
+  it('applies suggestions bottom-up and refuses stale lines', async () => {
+    const { planFixes, writeFixes } = await import('../src/fix.js');
+    const { fingerprint } = await import('../src/analyzers/context.js');
+    const { readFileSync, writeFileSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    repo = tempRepo();
+    repo.write({ 'a.ts': 'const a = 1;\nconst b = 2;\nconst c = 3;\nconst d = 4;\n' });
+    const mk = (line: number, text: string, suggestion: string, title: string) =>
+      ({ id: fingerprint('llm/logic', 'a.ts', text, title), rule: 'llm/logic', file: 'a.ts', line, title, suggestion, severity: 'P1', category: 'logic', source: 'llm', body: '', evidence: [], confidence: 1, verification: 'confirmed' }) as any;
+    const f1 = mk(1, 'const a = 1;', 'const a = 10;', 'a is wrong');
+    const f3 = mk(3, 'const c = 3;', 'const c = 30;\nconst cc = 31;', 'c is wrong');
+    const stale = mk(4, 'const d = 999;', 'const d = 40;', 'd is wrong');
+    const plan = planFixes(repo.root, [f1, f3, stale]);
+    expect(plan.applied.map((a) => a.finding.line).sort()).toEqual([1, 3]);
+    expect(plan.skipped.map((s) => s.reason)).toEqual(['the code changed since the review']);
+    writeFixes(repo.root, plan);
+    expect(readFileSync(join(repo.root, 'a.ts'), 'utf8')).toBe('const a = 10;\nconst b = 2;\nconst c = 30;\nconst cc = 31;\nconst d = 4;\n');
+    void writeFileSync;
+  });
+});

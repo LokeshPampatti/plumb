@@ -294,6 +294,35 @@ program
   });
 
 program
+  .command('fix')
+  .description('Apply the suggested fixes from the last review (only where the code has not changed since)')
+  .argument('[ids...]', 'finding ids (prefixes ok); default: every finding with a suggestion')
+  .addOption(new Option('--severity <sev>', 'only findings at or above this severity').choices(['P0', 'P1', 'P2']).default('P2'))
+  .option('--dry-run', 'show what would change without writing')
+  .action(async (ids: string[], o) => {
+    const { planFixes, writeFixes } = await import('./fix.js');
+    const root = repoRoot(process.cwd());
+    const last = lastResult(root);
+    if (!last) {
+      console.error('No review yet. Run `plumb review` first.');
+      process.exitCode = 1;
+      return;
+    }
+    const plan = planFixes(root, last.findings, { ids: ids.length ? ids : undefined, maxSeverity: o.severity });
+    for (const a of plan.applied) {
+      console.log(`${pc.green(o.dryRun ? 'would fix' : 'fixed')} ${a.finding.file}:${a.finding.line} ${pc.dim(a.finding.title)}`);
+      for (const l of a.before) console.log(pc.red(`  - ${l}`));
+      for (const l of a.after) console.log(pc.green(`  + ${l}`));
+    }
+    for (const s of plan.skipped) console.log(`${pc.yellow('skipped')} ${s.finding.file}:${s.finding.line} ${pc.dim(s.reason)}`);
+    if (!plan.applied.length && !plan.skipped.length) console.log('No findings with suggested fixes.');
+    if (!o.dryRun && plan.applied.length) {
+      writeFixes(root, plan);
+      console.log(pc.dim(`Applied ${plan.applied.length} fix(es). Run \`plumb review\` to check the result, \`git diff\` to see it.`));
+    }
+  });
+
+program
   .command('hook')
   .description('Install a git pre-push hook that blocks pushes with P0 findings (static checks, $0, ~1s)')
   .argument('<action>', 'install | uninstall')

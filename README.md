@@ -120,6 +120,7 @@ plumb impact <symbol | file | file:line>   who calls this?
 plumb dismiss <id> -r "reason" [--scope file|dir|repo] [--downgrade]
 plumb remember "We use Result<T>, not exceptions, in src/payments"
 plumb memory [list | forget <id>]
+plumb fix [ids] [--dry-run]    apply suggested fixes (only to lines unchanged since review)
 plumb fix-prompt               hand the last review to a coding agent
 plumb stats                    addressed rate, fixed vs dismissed, by category
 plumb hook install             pre-push hook: static checks, blocks P0
@@ -175,7 +176,7 @@ Results land in `bench/results/`.
 
 ## Status
 
-Working: everything above, covered by 34 tests (diff parsing, extraction across languages, every static check, the full pipeline with a scripted model, secret hygiene, the trust model, the toolchain layer, repro runs against real test files, the GitHub flow against a fake API, and the MCP server over stdio).
+Working: everything above, covered by 35 tests (diff parsing, extraction across languages, every static check, the full pipeline with a scripted model, secret hygiene, the trust model, the toolchain layer, repro runs against real test files, the GitHub flow against a fake API, and the MCP server over stdio).
 
 Not done yet: a live model run of the full benchmark, GitLab and Bitbucket, a hosted dashboard, sandboxing for `--repro`, learning from historical PR review comments.
 
