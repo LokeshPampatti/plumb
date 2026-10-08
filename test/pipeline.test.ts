@@ -355,3 +355,23 @@ describe('plumb fix', () => {
     void writeFileSync;
   });
 });
+
+describe('depth', () => {
+  it('deep runs specialist passes, merges their unique findings, and prices them in', async () => {
+    repo = setup();
+    const purposes: string[] = [];
+    const mock = new MockProvider({
+      find: (req) => {
+        purposes.push(req.system.includes('FOCUS FOR THIS PASS: security') ? 'security' : req.system.includes('concurrency and async only') ? 'concurrency' : req.system.includes('data integrity only') ? 'data' : 'general');
+        if (req.system.includes('data integrity only')) return { findings: [{ ...offByOne, line: 4, category: 'data', title: 'Total ignores quantity of the last item', body: 'Data.' }] };
+        return { findings: [offByOne] };
+      },
+      verify: (req) => ({ verdicts: [0, 1].map((index) => ({ index, verdict: 'confirmed', reason: 'ok' })) }),
+    });
+    const base = await runReview({ cwd: repo.root, mode: { kind: 'working' }, provider: mock, verifier: mock, config: { budgetUsd: 5 }, estimateOnly: true });
+    const r = await runReview({ cwd: repo.root, mode: { kind: 'working' }, provider: mock, verifier: mock, config: { budgetUsd: 5, votes: 3, specialists: ['security', 'concurrency', 'data'] } });
+    expect(purposes.sort()).toEqual(['concurrency', 'data', 'general', 'general', 'general', 'security']);
+    expect(r.findings.map((f) => f.title).sort()).toEqual([offByOne.title, 'Total ignores quantity of the last item'].sort());
+    expect(r.estimate!.usd).toBeGreaterThan(base.estimate!.usd * 3);
+  });
+});

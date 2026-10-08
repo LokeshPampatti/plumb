@@ -23,6 +23,8 @@ export interface PlumbConfig {
   verify: boolean;
   /** Independent finder samples; findings must appear in a majority. */
   votes: number;
+  /** Extra focused finder passes (security, concurrency, data). */
+  specialists: string[];
   /** Hard cap on model spend per review, in USD. 0 = no paid calls. */
   budgetUsd: number;
   autoApprove: { enabled: boolean; maxRisk: 'low' | 'medium' | 'high'; excludePaths: string[]; includePaths: string[] };
@@ -46,6 +48,7 @@ export const DEFAULT_CONFIG: PlumbConfig = {
   rules: [],
   verify: true,
   votes: 1,
+  specialists: [],
   budgetUsd: 2,
   autoApprove: { enabled: false, maxRisk: 'low', excludePaths: [], includePaths: [] },
   sensitivePaths: [
@@ -194,3 +197,10 @@ export const SAMPLE_CONFIG = `{
   "ignore": ["**/fixtures/**"]
 }
 `;
+
+/** Review depth presets, like Greptile's Base / Plus / Apex but with the cost shown up front. */
+export const DEPTHS: Record<'quick' | 'standard' | 'deep', Partial<PlumbConfig> & { effort: PlumbConfig['model']['effort'] }> = {
+  quick: { votes: 1, specialists: [], verify: true, effort: 'medium' },
+  standard: { votes: 1, specialists: [], verify: true, effort: 'high' },
+  deep: { votes: 3, specialists: ['security', 'concurrency', 'data'], verify: true, effort: 'xhigh' },
+};

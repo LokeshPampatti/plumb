@@ -92,3 +92,10 @@ export const VERDICTS_SCHEMA = {
     },
   },
 } as const;
+
+/** Focus paragraphs for --depth deep. Each runs as its own finder pass over the same context. */
+export const SPECIALISTS: Record<string, string> = {
+  security: `FOCUS FOR THIS PASS: security only. Authentication and authorization checks (missing, bypassable, checked on the wrong object), injection (SQL, shell, template, header), SSRF and open redirects, path traversal, unsafe deserialization, secrets in code or logs, weak crypto, timing-unsafe comparison of secrets or tokens, single-use credentials (reset tokens, backup codes, invites) that are not invalidated after use, XSS. Ignore everything else.`,
+  concurrency: `FOCUS FOR THIS PASS: concurrency and async only. Races between read and write, check-then-act, missing await, promises created in forEach/map and never awaited, unhandled rejections, locks held across I/O or never released, deadlocks, goroutine/thread leaks, mutable defaults shared between calls, non-thread-safe lazy initialization. Ignore everything else.`,
+  data: `FOCUS FOR THIS PASS: data integrity only. Writes or deletes that hit more rows than intended (OR vs AND, missing WHERE), records left behind when their owner is deleted, caches without expiry or invalidation, stale values read after an update, non-idempotent retries, lost updates, pagination boundaries and negative offsets, wrong units, migrations that lose data. Ignore everything else.`,
+};

@@ -66,7 +66,7 @@ The default Anthropic model is `claude-opus-5-5` at high effort, with prompt cac
    - secrets in added lines (AWS, GitHub, Stripe, Anthropic, OpenAI, Slack, Supabase service keys, private keys, DB URLs, high-entropy assignments)
 3. **Ask your own toolchain.** If the project has `tsc`, `go vet` or `ruff` installed, Plumb runs them (type checks and correctness rules only, nothing executes) and keeps errors on lines the change added. Errors that were already there aren't blamed on this change.
 4. **Gather context.** For each changed file the model gets the numbered diff, the full text of every changed function, the callers the graph found (with surrounding lines), the signatures of what the new code calls, what static analysis already proved, the file's history (reverts, fix density), and your rules and instruction files (CLAUDE.md, AGENTS.md, `.cursor/rules`, CONTRIBUTING.md).
-5. **Find.** The finder model reports defects with a line anchor, evidence locations, impact, and a fix. With `--votes 3`, three independent samples run and only findings most of them agree on survive.
+5. **Find.** The finder model reports defects with a line anchor, evidence locations, impact, and a fix. With `--votes 3`, three independent samples run and only findings most of them agree on survive. `--depth deep` also runs three focused passes (security, concurrency, data integrity) whose findings go through the same skeptic.
 6. **Try to disprove it.** A separate skeptic pass gets the same context and tries to refute each finding. Refuted findings are dropped. Uncertain P2s are dropped. Uncertain P0/P1s stay, labelled unverified. `--show-refuted` lists what got thrown out and why.
 7. **Check against reality.** Findings that point outside the diff are dropped. Evidence snippets are re-read from disk, so the text you see is your code, not something the model wrote.
 8. **Prove it by running it (opt-in).** With `--repro`, the model writes a minimal failing test for each P0/P1 in your project's own framework (vitest, jest, node:test, pytest, go test). Plumb runs it and deletes it. A test that fails on an assertion marks the finding **reproduced**; a test that passes marks it **not reproduced** and lowers its weight. This runs model-written code on your machine, so it is off unless you ask.
@@ -84,6 +84,7 @@ Everything in the Greptile column comes from Greptile's own docs (October 2026).
 | Your compiler as a reviewer | A model-judged "syntax" comment type; the docs never mention running your compiler | Runs your `tsc` / `go vet` / `ruff` and reports only new errors on changed lines |
 | Account | Required, even for the CLI | None |
 | Cost | $30/seat/month, then $1 per review. Plus = 3 credits, Apex = 10 | Free and open source. Bring any model, or run static checks for $0 |
+| Deeper reviews | Plus (3×) and Apex (10×) tiers, contents undocumented | `--depth deep`: named specialist passes and voting, priced before it runs |
 | Know the cost first | No preview; their troubleshooting covers reviews that "cost 3 or 10 credits instead of 1" | Estimate before every paid run, plus a hard per-review cap |
 | False positives | Third-party benchmarks report more noise than competitors | Skeptic pass on every model finding, optional majority voting, evidence re-read from disk |
 | Bugs outside the diff | Inline comments only reach diff lines | Deterministic contract checks, plus a "Problems outside this diff" section in the PR summary |
@@ -107,6 +108,7 @@ plumb review [paths...]        review uncommitted changes (default)
   --pr <url | owner/repo#N>    review a GitHub PR without cloning it
   --static                     no model calls
   --provider, --model, --effort, --verifier-model
+  --depth quick|standard|deep  deep = security, concurrency and data passes + 3-way voting
   --votes 3                    majority vote across 3 finder samples
   --budget 0.50                hard cap for this run
   --estimate                   print the cost estimate and stop
@@ -181,7 +183,7 @@ Results land in `bench/results/`.
 
 ## Status
 
-Working: everything above, covered by 36 tests (diff parsing, extraction across languages, every static check, the full pipeline with a scripted model, secret hygiene, the trust model, the toolchain layer, repro runs against real test files, the GitHub and GitLab flows against fake APIs, and the MCP server over stdio).
+Working: everything above, covered by 37 tests (diff parsing, extraction across languages, every static check, the full pipeline with a scripted model, secret hygiene, the trust model, the toolchain layer, repro runs against real test files, the GitHub and GitLab flows against fake APIs, and the MCP server over stdio).
 
 Not done yet: a live model run of the full benchmark, Bitbucket, a hosted dashboard, sandboxing for `--repro`, learning from historical PR review comments.
 

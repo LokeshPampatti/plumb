@@ -52,6 +52,7 @@ program
   .option('--verifier-model <id>', 'model for the skeptic pass')
   .addOption(new Option('--effort <level>', 'reasoning effort').choices(['low', 'medium', 'high', 'xhigh', 'max']))
   .option('--static', 'static checks only: no model calls, $0')
+  .addOption(new Option('--depth <depth>', 'quick | standard | deep (deep adds security, concurrency and data passes plus 3-way voting)').choices(['quick', 'standard', 'deep']))
   .option('--votes <n>', 'independent finder samples; keep findings a majority agree on', (v) => parseInt(v, 10))
   .option('--no-verify', 'skip the skeptic pass')
   .option('--budget <usd>', 'hard spend cap for this run', parseFloat)
@@ -99,6 +100,15 @@ program
     if (provider || o.model || o.effort || o.verifierModel) {
       cfg.model = { ...DEFAULT_CONFIG.model, ...(provider ? { provider } : {}), ...(o.model ? { name: o.model } : {}), ...(o.effort ? { effort: o.effort } : {}), ...(o.verifierModel ? { verifier: o.verifierModel } : {}) } as PlumbConfig['model'];
       if (!provider && hasFileProvider) delete (cfg.model as Partial<PlumbConfig['model']>).provider;
+    }
+    if (o.depth) {
+      const { DEPTHS } = await import('./config.js');
+      const d = DEPTHS[o.depth as 'quick' | 'standard' | 'deep'];
+      cfg.votes = d.votes;
+      cfg.specialists = d.specialists;
+      cfg.verify = d.verify;
+      // Config merging is deep, so only the effort is overridden; the provider from config stays.
+      if (!o.effort) cfg.model = { ...(cfg.model ?? {}), effort: d.effort } as PlumbConfig['model'];
     }
     if (o.votes) cfg.votes = o.votes;
     if (o.verify === false) cfg.verify = false;

@@ -18,7 +18,7 @@ import { addUsage, approxTokens, Budget, BudgetExceeded, emptyUsage, MeteredProv
 import { applyMemory, keywords, loadMemory } from '../memory.js';
 import type { Category, CostEstimate, Finding, Severity, Usage } from '../types.js';
 import { buildUnits, sharedContext, type ReviewUnit } from './contextpack.js';
-import { FINDER_SYSTEM, FINDINGS_SCHEMA, VERDICTS_SCHEMA, VERIFIER_SYSTEM } from './prompts.js';
+import { FINDER_SYSTEM, FINDINGS_SCHEMA, SPECIALISTS, VERDICTS_SCHEMA, VERIFIER_SYSTEM } from './prompts.js';
 import { decideGate, scoreReview, type GateDecision, type ScoreReport } from './score.js';
 import { reproduce } from './repro.js';
 
@@ -118,6 +118,10 @@ function asCandidates(json: unknown): Candidate[] {
   });
 }
 
+function sharedWords(title: string, kw: string[]): number {
+  return keywords(title, 6).filter((w) => kw.includes(w)).length;
+}
+
 /** Majority vote across independent finder samples. */
 function vote(samples: Candidate[][], k: number): Candidate[] {
   if (k <= 1) return samples[0] ?? [];
@@ -129,7 +133,7 @@ function vote(samples: Candidate[][], k: number): Candidate[] {
         (cl) =>
           cl.rep.file === c.file &&
           Math.abs(cl.rep.line - c.line) <= 3 &&
-          (cl.rep.category === c.category || keywords(cl.rep.title, 6).some((w) => kw.includes(w))),
+          (cl.rep.category === c.category || sharedWords(cl.rep.title, kw) >= 2),
       );
       if (hit) hit.votes.add(s);
       else clusters.push({ rep: c, votes: new Set([s]) });
@@ -205,14 +209,15 @@ export async function runReview(opts: ReviewOptions): Promise<ReviewResult> {
     const sharedFull = shared + (prefs.length ? '\n\n## Team preferences learned from past reviews\n' + prefs.map((p) => `- ${p.text}`).join('\n') : '');
     let units = buildUnits(ctx, impact, history, staticFindings);
     const votes = Math.max(1, Math.min(5, cfg.votes));
+    const specialists = cfg.specialists.filter((sp) => SPECIALISTS[sp]);
 
     const est = (us: ReviewUnit[]): CostEstimate => {
       const sysT = approxTokens(FINDER_SYSTEM + sharedFull);
       let inT = 0;
       let outT = 0;
       for (const u of us) {
-        inT += votes * (sysT + u.tokens + 300);
-        outT += votes * 1800;
+        inT += (votes + specialists.length) * (sysT + u.tokens + 300);
+        outT += (votes + specialists.length) * 1800;
         if (cfg.verify) {
           inT += approxTokens(VERIFIER_SYSTEM) + approxTokens(sharedFull) + u.tokens + 900;
           outT += 900;
@@ -220,7 +225,7 @@ export async function runReview(opts: ReviewOptions): Promise<ReviewResult> {
       }
       const p = provider!.pricing;
       // Shared prefix is cached after the first call.
-      const cachedShare = Math.max(0, (us.length * (votes + (cfg.verify ? 1 : 0)) - 1) * approxTokens(sharedFull));
+      const cachedShare = Math.max(0, (us.length * (votes + specialists.length + (cfg.verify ? 1 : 0)) - 1) * approxTokens(sharedFull));
       const usd = ((inT - cachedShare) * p.input + cachedShare * p.cacheRead + outT * p.output) / 1e6;
       return {
         provider: provider!.name,
@@ -272,6 +277,26 @@ export async function runReview(opts: ReviewOptions): Promise<ReviewResult> {
             ),
           );
           let cands = vote(samples, votes);
+          // Specialist passes add candidates the general pass may have missed; the skeptic checks them all.
+          if (specialists.length) {
+            const extra = await Promise.all(
+              specialists.map((sp) =>
+                metered
+                  .complete({ system: `${FINDER_SYSTEM}\n\n${SPECIALISTS[sp]}`, sharedContext: sharedFull, prompt: unit.text, schema: FINDINGS_SCHEMA as any, purpose: 'find' })
+                  .then((r) => asCandidates(r.json))
+                  .catch((e) => {
+                    if (e instanceof BudgetExceeded) throw e;
+                    notes.push(`The ${sp} pass failed: ${(e as Error).message}`);
+                    return [] as Candidate[];
+                  }),
+              ),
+            );
+            for (const c of extra.flat()) {
+              const kw = keywords(c.title, 6);
+              const dup = cands.some((x) => x.file === c.file && Math.abs(x.line - c.line) <= 3 && (x.category === c.category || sharedWords(x.title, kw) >= 2));
+              if (!dup) cands.push(c);
+            }
+          }
           cands = normalize(ctx, unit, cands, staticFindings, notes);
           if (!cands.length) return;
 
