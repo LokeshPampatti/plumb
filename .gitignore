@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.plumb/cache/
+.plumb/state/
+.claude/
+bench/results/*.log
+*.tgz

@@ -1,0 +1,808 @@
+{
+ "summary": {
+  "at": "2026-10-07T23:28:06.094Z",
+  "mode": "static",
+  "cases": 50,
+  "plumb": {
+   "caught": 1,
+   "rate": 0.02,
+   "staticCatches": 1,
+   "avgFindings": 0.08,
+   "usd": 0,
+   "seconds": 1582.2
+  },
+  "others": {
+   "greptile": 41,
+   "cursor": 29,
+   "copilot": 26,
+   "coderabbit": 22,
+   "graphite": 3
+  },
+  "caughtByPlumbOnly": []
+ },
+ "results": [
+  {
+   "id": "sentry-1",
+   "bug": "Importing non-existent OptimizedCursorPaginator",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 39,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "sentry-2",
+   "bug": "Negative offset cursor manipulation bypasses pagination boundaries",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 8.1,
+   "others": [
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "sentry-3",
+   "bug": "sample_rate = 0.0 is falsy and skipped",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 28.3,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "sentry-4",
+   "bug": "Null reference if github_authenticated_user state is missing",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 91.5,
+   "others": [
+    "copilot",
+    "cursor"
+   ]
+  },
+  {
+   "id": "sentry-5",
+   "bug": "Breaking changes in error response format",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 52.1,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "sentry-6",
+   "bug": "Inconsistent metric tagging with 'shard' and 'shards'",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 10,
+   "others": [
+    "greptile",
+    "copilot"
+   ]
+  },
+  {
+   "id": "sentry-7",
+   "bug": "Shared mutable default in dataclass timestamp",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 29.2,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "sentry-8",
+   "bug": "Using stale config variable instead of updated one",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 17.2,
+   "others": [
+    "greptile",
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "sentry-9",
+   "bug": "Invalid queue.ShutDown exception handling",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 29.7,
+   "others": [
+    "greptile",
+    "copilot"
+   ]
+  },
+  {
+   "id": "sentry-10",
+   "bug": "Incomplete implementation (only contains pass)",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 31.1,
+   "others": [
+    "greptile",
+    "cursor"
+   ]
+  },
+  {
+   "id": "cal.com-1",
+   "bug": "Async callbacks in forEach creates unhandled promise rejections",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 12.6,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "cal.com-2",
+   "bug": "Backup codes not invalidated after use",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 12.9,
+   "others": [
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "cal.com-3",
+   "bug": "Null reference error if array is empty",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 4.5,
+   "others": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ]
+  },
+  {
+   "id": "cal.com-4",
+   "bug": "Potential SQL injection risk in raw SQL query construction",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 47.2,
+   "others": [
+    "greptile",
+    "copilot"
+   ]
+  },
+  {
+   "id": "cal.com-5",
+   "bug": "Missing database cleanup when immediateDelete is true",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 10.6,
+   "others": [
+    "greptile",
+    "cursor"
+   ]
+  },
+  {
+   "id": "cal.com-6",
+   "bug": "Incorrect end time calculation using slotStartTime instead of slotEndTime",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 3.8,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "cal.com-7",
+   "bug": "Timing attack vulnerability using direct string comparison",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 6.1,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "cal.com-8",
+   "bug": "OR condition causes deletion of all workflow reminders",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 9.3,
+   "others": [
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "cal.com-9",
+   "bug": "Case sensitivity bypass in email blacklist",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 14.1,
+   "others": [
+    "greptile",
+    "copilot"
+   ]
+  },
+  {
+   "id": "cal.com-10",
+   "bug": "Inaccurate cache status tracking due to unreliable updatedAt field",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 21.7,
+   "others": [
+    "greptile",
+    "cursor"
+   ]
+  },
+  {
+   "id": "grafana-1",
+   "bug": "Race condition in CreateOrUpdateDevice method",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 36.3,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "grafana-2",
+   "bug": "Cache entries without expiration causing permanent permission denials",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 47,
+   "others": [
+    "cursor"
+   ]
+  },
+  {
+   "id": "grafana-3",
+   "bug": "Undefined endpoint constants causing compilation errors",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 62.3,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "grafana-4",
+   "bug": "Double interpolation risk",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 66.8,
+   "others": [
+    "copilot",
+    "cursor"
+   ]
+  },
+  {
+   "id": "grafana-5",
+   "bug": "Missing key prop causing React rendering issues",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 101.4,
+   "others": [
+    "greptile",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "grafana-6",
+   "bug": "Incorrect metrics recording methods causing misleading performance tracking",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 2,
+   "findingTitles": [
+    "[P1] pkg/apiserver/rest/dualwriter_mode3.go:50 This call to `recordLegacyDuration()` is missing `isError`, `mode`, `name`, `method`, `startFrom`",
+    "[P1] pkg/apiserver/rest/dualwriter_mode3.go:161 This call to `recordStorageDuration()` is missing `isError`, `mode`, `name`, `method`, `startFrom`"
+   ],
+   "usd": 0,
+   "seconds": 29,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor",
+    "graphite"
+   ]
+  },
+  {
+   "id": "grafana-7",
+   "bug": "Incorrect error level logging",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 22.7,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "graphite"
+   ]
+  },
+  {
+   "id": "grafana-8",
+   "bug": "Deadlock potential during concurrent annotation deletion operations",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 22.2,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "grafana-9",
+   "bug": "enableSqlExpressions function always returns false, disabling SQL functionality",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 20.4,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor",
+    "graphite"
+   ]
+  },
+  {
+   "id": "grafana-10",
+   "bug": "Race condition in cache locking",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 16.8,
+   "others": [
+    "greptile",
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-1",
+   "bug": "ConditionalPasskeysEnabled() called without UserModel parameter",
+   "caught": true,
+   "how": "static",
+   "matched": {
+    "title": "This call to `isConditionalPasskeysEnabled()` is missing `user`",
+    "file": "services/src/main/java/org/keycloak/authentication/authenticators/browser/UsernameForm.java",
+    "line": 47,
+    "verification": "deterministic"
+   },
+   "judge": "keyword",
+   "judgeReason": "2 key terms overlap",
+   "findings": 2,
+   "findingTitles": [
+    "[P1] services/src/main/java/org/keycloak/authentication/authenticators/browser/AbstractUsernameFormAuthenticator.java:58 Possible hard-coded `USER_SET_BEFORE_USERNAME_PASSWORD_AUTH` committed in plain text",
+    "[P1] services/src/main/java/org/keycloak/authentication/authenticators/browser/UsernameForm.java:47 This call to `isConditionalPasskeysEnabled()` is missing `user`"
+   ],
+   "usd": 0,
+   "seconds": 25.4,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "keycloak-2",
+   "bug": "Recursive caching call using session instead of delegate",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 41.7,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "keycloak-3",
+   "bug": "Returns wrong provider (default keystore instead of BouncyCastle)",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 50.4,
+   "others": [
+    "greptile",
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "keycloak-4",
+   "bug": "Incorrect method call for exit codes",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 119,
+   "others": []
+  },
+  {
+   "id": "keycloak-5",
+   "bug": "Inconsistent feature flag bug causing orphaned permissions",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 35.8,
+   "others": [
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-6",
+   "bug": "Incorrect permission check in canManage() method",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 31.5,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-7",
+   "bug": "Lithuanian translation files contain Italian text",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 136.3,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-8",
+   "bug": "Wrong parameter in null check (grantType vs. rawTokenId)",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 55.2,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-9",
+   "bug": "Unsafe raw List deserialization without type safety",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 35.8,
+   "others": [
+    "greptile",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-10",
+   "bug": "Missing null check causing NullPointerException",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 62.7,
+   "others": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-1",
+   "bug": "Method overwriting causing parameter mismatch",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 10.9,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-2",
+   "bug": "Nil reference non-existent TopicUser",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 2.5,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-3",
+   "bug": "BlockedEmail.should_block? modifies DB during read",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 7.5,
+   "others": [
+    "greptile",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-4",
+   "bug": "SSRF vulnerability using open(url) without validation",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 6,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-5",
+   "bug": "Mixing float: left with flexbox causes layout issues",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 12.3,
+   "others": [
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "discourse-6",
+   "bug": "String mutation with << operator",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 9.9,
+   "others": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-7",
+   "bug": "Inconsistent theme color lightness affects visibility",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 12.7,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-8",
+   "bug": "Race conditions in async member loading",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 5.8,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "discourse-9",
+   "bug": "Thread-safety issue with lazy @loaded_locales",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 5.8,
+   "others": [
+    "greptile",
+    "copilot"
+   ]
+  },
+  {
+   "id": "discourse-10",
+   "bug": "NoMethodError before_validation in EmbeddableHost",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 11.1,
+   "others": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ]
+  }
+ ]
+}

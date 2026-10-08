@@ -1,0 +1,39 @@
+{
+ "summary": {
+  "at": "2026-10-07T22:04:27.486Z",
+  "mode": "static",
+  "cases": 1,
+  "plumb": {
+   "caught": 0,
+   "rate": 0,
+   "staticCatches": 0,
+   "avgFindings": 0,
+   "usd": 0,
+   "seconds": 26.1
+  },
+  "others": {
+   "greptile": 1,
+   "cursor": 0,
+   "copilot": 0,
+   "coderabbit": 0,
+   "graphite": 0
+  },
+  "caughtByPlumbOnly": []
+ },
+ "results": [
+  {
+   "id": "sentry-1",
+   "bug": "Importing non-existent OptimizedCursorPaginator",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 26.1,
+   "others": [
+    "greptile"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,876 @@
+{
+ "source": "https://www.greptile.com/benchmarks",
+ "note": "50 real bug-introducing PRs used in Greptile's public AI code review benchmark. caughtBy lists the tools Greptile's table credits with each catch.",
+ "cases": [
+  {
+   "id": "sentry-1",
+   "repo": "ai-code-review-evaluation/sentry-greptile",
+   "lang": "python",
+   "pr": 1,
+   "title": "Enhanced Pagination Performance for High-Volume Audit Logs",
+   "bug": "Importing non-existent OptimizedCursorPaginator",
+   "severity": "High",
+   "caughtBy": [
+    "greptile"
+   ],
+   "base": "a5d290951def84afdcc4c88d2f1f20023fc36e2a",
+   "head": "8ab88145113dd23a930e23b9cbbcf8b30e4c0b17",
+   "mergeBase": "74618671bff8114fcec8fe77c6260c9a2bc2864a",
+   "changedFiles": 3
+  },
+  {
+   "id": "sentry-2",
+   "repo": "ai-code-review-evaluation/sentry-greptile",
+   "lang": "python",
+   "pr": 2,
+   "title": "Optimize spans buffer insertion with eviction during insert",
+   "bug": "Negative offset cursor manipulation bypasses pagination boundaries",
+   "severity": "Critical",
+   "caughtBy": [
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "28e3db2520d4ea28c57b08da57b83917ba7b2e15",
+   "head": "8ab88145113dd23a930e23b9cbbcf8b30e4c0b17",
+   "mergeBase": "28e3db2520d4ea28c57b08da57b83917ba7b2e15",
+   "changedFiles": 9
+  },
+  {
+   "id": "sentry-3",
+   "repo": "ai-code-review-evaluation/sentry-greptile",
+   "lang": "python",
+   "pr": 3,
+   "title": "feat(upsampling) - Support upsampled error count with performance optimizations",
+   "bug": "sample_rate = 0.0 is falsy and skipped",
+   "severity": "Low",
+   "caughtBy": [
+    "greptile"
+   ],
+   "base": "a5d290951def84afdcc4c88d2f1f20023fc36e2a",
+   "head": "6ad6fe3899f630ccf922ce7ac681147dc7987435",
+   "mergeBase": "83f40559985e1365a43f35ba3febb7ea4fabb5d5",
+   "changedFiles": 8
+  },
+  {
+   "id": "sentry-4",
+   "repo": "ai-code-review-evaluation/sentry-greptile",
+   "lang": "python",
+   "pr": 4,
+   "title": "GitHub OAuth Security Enhancement",
+   "bug": "Null reference if github_authenticated_user state is missing",
+   "severity": "Critical",
+   "caughtBy": [
+    "copilot",
+    "cursor"
+   ],
+   "base": "ccd14e450fcefa5b286c06221775f50a49059f6d",
+   "head": "843d7c71926b03f0c5847a0740ac3f7fb3c5fbad",
+   "mergeBase": "ccd14e450fcefa5b286c06221775f50a49059f6d",
+   "changedFiles": 3
+  },
+  {
+   "id": "sentry-5",
+   "repo": "ai-code-review-evaluation/sentry-greptile",
+   "lang": "python",
+   "pr": 5,
+   "title": "Replays Self-Serve Bulk Delete System",
+   "bug": "Breaking changes in error response format",
+   "severity": "Critical",
+   "caughtBy": [
+    "greptile"
+   ],
+   "base": "49a275847631e231672d01b5dcd66558c069d25b",
+   "head": "ea188e2d736fd6ed27c1dba8aae63b7268e2a7a9",
+   "mergeBase": "49a275847631e231672d01b5dcd66558c069d25b",
+   "changedFiles": 106
+  },
+  {
+   "id": "sentry-6",
+   "repo": "ai-code-review-evaluation/sentry-greptile",
+   "lang": "python",
+   "pr": 6,
+   "title": "Span Buffer Multiprocess Enhancement with Health Monitoring",
+   "bug": "Inconsistent metric tagging with 'shard' and 'shards'",
+   "severity": "Medium",
+   "caughtBy": [
+    "greptile",
+    "copilot"
+   ],
+   "base": "c2c41b0db17dafbcf901412623e874b48ae37a6e",
+   "head": "9bf83b05423beff6dcc542f93e903c562e97469b",
+   "mergeBase": "c2c41b0db17dafbcf901412623e874b48ae37a6e",
+   "changedFiles": 6
+  },
+  {
+   "id": "sentry-7",
+   "repo": "ai-code-review-evaluation/sentry-greptile",
+   "lang": "python",
+   "pr": 7,
+   "title": "feat(ecosystem): Implement cross-system issue synchronization",
+   "bug": "Shared mutable default in dataclass timestamp",
+   "severity": "Medium",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "19c92a4345beecc750245775de2b3ab9f4f59473",
+   "head": "f9919d789416dd32549d7bb9e238d5df55d5265a",
+   "mergeBase": "19c92a4345beecc750245775de2b3ab9f4f59473",
+   "changedFiles": 7
+  },
+  {
+   "id": "sentry-8",
+   "repo": "ai-code-review-evaluation/sentry-greptile",
+   "lang": "python",
+   "pr": 8,
+   "title": "ref(crons): Reorganize incident creation / issue occurrence logic",
+   "bug": "Using stale config variable instead of updated one",
+   "severity": "High",
+   "caughtBy": [
+    "greptile",
+    "coderabbit"
+   ],
+   "base": "5fc9f67c1bd6a50d6c6eb3270b1e6fb7938c5865",
+   "head": "c3b32a7babfcf62b91553388bcd9e9fbfd30a690",
+   "mergeBase": "5fc9f67c1bd6a50d6c6eb3270b1e6fb7938c5865",
+   "changedFiles": 4
+  },
+  {
+   "id": "sentry-9",
+   "repo": "ai-code-review-evaluation/sentry-greptile",
+   "lang": "python",
+   "pr": 9,
+   "title": "feat(uptime): Add ability to use queues to manage parallelism",
+   "bug": "Invalid queue.ShutDown exception handling",
+   "severity": "High",
+   "caughtBy": [
+    "greptile",
+    "copilot"
+   ],
+   "base": "5c94383dd49b567fb086ad594b40af066f426858",
+   "head": "33f4fddf64465f75308957c4431e56fd0443eca3",
+   "mergeBase": "5c94383dd49b567fb086ad594b40af066f426858",
+   "changedFiles": 7
+  },
+  {
+   "id": "sentry-10",
+   "repo": "ai-code-review-evaluation/sentry-greptile",
+   "lang": "python",
+   "pr": 10,
+   "title": "feat(workflow_engine): Add in hook for producing occurrences from the stateful detector",
+   "bug": "Incomplete implementation (only contains pass)",
+   "severity": "High",
+   "caughtBy": [
+    "greptile",
+    "cursor"
+   ],
+   "base": "7249010ca8fea2bbc9ae58e7352861c2d17c2ef2",
+   "head": "de60b7fb01a1df4ecca82cc842a8b5fb16d92794",
+   "mergeBase": "7249010ca8fea2bbc9ae58e7352861c2d17c2ef2",
+   "changedFiles": 4
+  },
+  {
+   "id": "cal.com-1",
+   "repo": "ai-code-review-evaluation/cal.com-greptile",
+   "lang": "typescript",
+   "pr": 2,
+   "title": "Async import of the appStore packages",
+   "bug": "Async callbacks in forEach creates unhandled promise rejections",
+   "severity": "Low",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "bff28e5d6fef42b4e7c036c688f0bad4410b42a2",
+   "head": "e043a5efd872362a3fc146ed0d9ce4393e316c1e",
+   "mergeBase": "bff28e5d6fef42b4e7c036c688f0bad4410b42a2",
+   "changedFiles": 12
+  },
+  {
+   "id": "cal.com-2",
+   "repo": "ai-code-review-evaluation/cal.com-greptile",
+   "lang": "typescript",
+   "pr": 3,
+   "title": "feat: 2fa backup codes",
+   "bug": "Backup codes not invalidated after use",
+   "severity": "Critical",
+   "caughtBy": [
+    "coderabbit"
+   ],
+   "base": "efa6d464a38e60ceeeb88f40668c1c4ac4bfaf54",
+   "head": "a308075bc39b77ed7059b0cae9d443d669a7bf98",
+   "mergeBase": "efa6d464a38e60ceeeb88f40668c1c4ac4bfaf54",
+   "changedFiles": 16
+  },
+  {
+   "id": "cal.com-3",
+   "repo": "ai-code-review-evaluation/cal.com-greptile",
+   "lang": "typescript",
+   "pr": 4,
+   "title": "fix: handle collective multiple host on destinationCalendar",
+   "bug": "Null reference error if array is empty",
+   "severity": "Medium",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ],
+   "base": "500bfb4d82c53c42e7f53250c6715f5fb474dc2b",
+   "head": "bd797c1ea00a61425735f2b9fd7ce212ebf8c8ab",
+   "mergeBase": "500bfb4d82c53c42e7f53250c6715f5fb474dc2b",
+   "changedFiles": 22
+  },
+  {
+   "id": "cal.com-4",
+   "repo": "ai-code-review-evaluation/cal.com-greptile",
+   "lang": "typescript",
+   "pr": 5,
+   "title": "feat: convert InsightsBookingService to use Prisma.sql raw queries",
+   "bug": "Potential SQL injection risk in raw SQL query construction",
+   "severity": "Critical",
+   "caughtBy": [
+    "greptile",
+    "copilot"
+   ],
+   "base": "202d248ae45f8f2f01324b0d8eb5914e9154112f",
+   "head": "56ff75f07b92ba8ef499ff28a2f98c25f339fdae",
+   "mergeBase": "202d248ae45f8f2f01324b0d8eb5914e9154112f",
+   "changedFiles": 2
+  },
+  {
+   "id": "cal.com-5",
+   "repo": "ai-code-review-evaluation/cal.com-greptile",
+   "lang": "typescript",
+   "pr": 6,
+   "title": "Comprehensive workflow reminder management for booking lifecycle events",
+   "bug": "Missing database cleanup when immediateDelete is true",
+   "severity": "High",
+   "caughtBy": [
+    "greptile",
+    "cursor"
+   ],
+   "base": "235ec0e906a189ceb0843cfa7af585b1d46f699f",
+   "head": "2ebfcf448c7e4136ac1b8b9ef9b526a4424fd155",
+   "mergeBase": "235ec0e906a189ceb0843cfa7af585b1d46f699f",
+   "changedFiles": 10
+  },
+  {
+   "id": "cal.com-6",
+   "repo": "ai-code-review-evaluation/cal.com-greptile",
+   "lang": "typescript",
+   "pr": 7,
+   "title": "Advanced date override handling and timezone compatibility improvements",
+   "bug": "Incorrect end time calculation using slotStartTime instead of slotEndTime",
+   "severity": "Medium",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit"
+   ],
+   "base": "c4fe69d8265ba632c10f3a90ea05e4a74ff14c85",
+   "head": "3ef328421f60cd096b7676ef7ee7c32b71593049",
+   "mergeBase": "c4fe69d8265ba632c10f3a90ea05e4a74ff14c85",
+   "changedFiles": 4
+  },
+  {
+   "id": "cal.com-7",
+   "repo": "ai-code-review-evaluation/cal.com-greptile",
+   "lang": "typescript",
+   "pr": 8,
+   "title": "OAuth credential sync and app integration enhancements",
+   "bug": "Timing attack vulnerability using direct string comparison",
+   "severity": "Critical",
+   "caughtBy": [
+    "greptile"
+   ],
+   "base": "bc89fe00ea84d20bedcec782f0701b9711dc8201",
+   "head": "824145b0e245661875240ed5c8745decd2293d1a",
+   "mergeBase": "bc89fe00ea84d20bedcec782f0701b9711dc8201",
+   "changedFiles": 40
+  },
+  {
+   "id": "cal.com-8",
+   "repo": "ai-code-review-evaluation/cal.com-greptile",
+   "lang": "typescript",
+   "pr": 9,
+   "title": "SMS workflow reminder retry count tracking",
+   "bug": "OR condition causes deletion of all workflow reminders",
+   "severity": "High",
+   "caughtBy": [
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "917c7b0764f4c6bfdca95db2c5f73dbfdbe11757",
+   "head": "2dae0bfb8c72b51aa49260dc1f7f215a6290f3a6",
+   "mergeBase": "917c7b0764f4c6bfdca95db2c5f73dbfdbe11757",
+   "changedFiles": 3
+  },
+  {
+   "id": "cal.com-9",
+   "repo": "ai-code-review-evaluation/cal.com-greptile",
+   "lang": "typescript",
+   "pr": 10,
+   "title": "Add guest management functionality to existing bookings",
+   "bug": "Case sensitivity bypass in email blacklist",
+   "severity": "High",
+   "caughtBy": [
+    "greptile",
+    "copilot"
+   ],
+   "base": "b004587262e8221083bafbe9a0c515e7becaa7b3",
+   "head": "baa9045af7711ea0b86390cb0bf0fdce5430228c",
+   "mergeBase": "b004587262e8221083bafbe9a0c515e7becaa7b3",
+   "changedFiles": 15
+  },
+  {
+   "id": "cal.com-10",
+   "repo": "ai-code-review-evaluation/cal.com-greptile",
+   "lang": "typescript",
+   "pr": 11,
+   "title": "feat: add calendar cache status and actions (#22532)",
+   "bug": "Inaccurate cache status tracking due to unreliable updatedAt field",
+   "severity": "Low",
+   "caughtBy": [
+    "greptile",
+    "cursor"
+   ],
+   "base": "3784421f025afc3a595fbb4e222916785cc6de0c",
+   "head": "cb7869234729f908648af6796ab4082b569daf39",
+   "mergeBase": "3784421f025afc3a595fbb4e222916785cc6de0c",
+   "changedFiles": 17
+  },
+  {
+   "id": "grafana-1",
+   "repo": "ai-code-review-evaluation/grafana-greptile",
+   "lang": "go",
+   "pr": 1,
+   "title": "Anonymous: Add configurable device limit",
+   "bug": "Race condition in CreateOrUpdateDevice method",
+   "severity": "High",
+   "caughtBy": [
+    "greptile"
+   ],
+   "base": "ed865831071a0c0a63c75ad0cfa6661107dabcaf",
+   "head": "3647ba7360b8d157e4a294a650a365b6aca070d8",
+   "mergeBase": "ed865831071a0c0a63c75ad0cfa6661107dabcaf",
+   "changedFiles": 11
+  },
+  {
+   "id": "grafana-2",
+   "repo": "ai-code-review-evaluation/grafana-greptile",
+   "lang": "go",
+   "pr": 2,
+   "title": "AuthZService: improve authz caching",
+   "bug": "Cache entries without expiration causing permanent permission denials",
+   "severity": "High",
+   "caughtBy": [
+    "cursor"
+   ],
+   "base": "e650fa7b2041c91fbb98ef3432b3969e13bbdac9",
+   "head": "d9dc93c4a6c88ef850dbe526cb3226ae99cafa20",
+   "mergeBase": "e650fa7b2041c91fbb98ef3432b3969e13bbdac9",
+   "changedFiles": 4
+  },
+  {
+   "id": "grafana-3",
+   "repo": "ai-code-review-evaluation/grafana-greptile",
+   "lang": "go",
+   "pr": 3,
+   "title": "Plugins: Chore: Renamed instrumentation middleware to metrics middleware",
+   "bug": "Undefined endpoint constants causing compilation errors",
+   "severity": "Critical",
+   "caughtBy": [
+    "greptile"
+   ],
+   "base": "5dac6731cbb99f3374898cf6a1558edb222d323b",
+   "head": "00393c2ac9103072bc2194118e455f9248a37816",
+   "mergeBase": "abd2c9c287630e8aebdec94714af3ce97f1fab11",
+   "changedFiles": 8
+  },
+  {
+   "id": "grafana-4",
+   "repo": "ai-code-review-evaluation/grafana-greptile",
+   "lang": "go",
+   "pr": 4,
+   "title": "Advanced Query Processing Architecture",
+   "bug": "Double interpolation risk",
+   "severity": "Critical",
+   "caughtBy": [
+    "copilot",
+    "cursor"
+   ],
+   "base": "dcb853d3099c08b74370fcc965342f035dd6d6cc",
+   "head": "3ba2457a7090b2b76f4b368c8a9db835d0bec66c",
+   "mergeBase": "dcb853d3099c08b74370fcc965342f035dd6d6cc",
+   "changedFiles": 4
+  },
+  {
+   "id": "grafana-5",
+   "repo": "ai-code-review-evaluation/grafana-greptile",
+   "lang": "go",
+   "pr": 5,
+   "title": "Notification Rule Processing Engine",
+   "bug": "Missing key prop causing React rendering issues",
+   "severity": "Medium",
+   "caughtBy": [
+    "greptile",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "acdb0e151c9a2abd6e691353de6cc515d316ee76",
+   "head": "3e6d620d2c1d1f6c10611fba8b0ee062d6fb2a68",
+   "mergeBase": "acdb0e151c9a2abd6e691353de6cc515d316ee76",
+   "changedFiles": 14
+  },
+  {
+   "id": "grafana-6",
+   "repo": "ai-code-review-evaluation/grafana-greptile",
+   "lang": "go",
+   "pr": 6,
+   "title": "Dual Storage Architecture",
+   "bug": "Incorrect metrics recording methods causing misleading performance tracking",
+   "severity": "Medium",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor",
+    "graphite"
+   ],
+   "base": "5e3a5b355ef7478d7be86923749e25aebef5226a",
+   "head": "67b74e1e8a7d26d24617b7313b90fa4649138318",
+   "mergeBase": "5e3a5b355ef7478d7be86923749e25aebef5226a",
+   "changedFiles": 5
+  },
+  {
+   "id": "grafana-7",
+   "repo": "ai-code-review-evaluation/grafana-greptile",
+   "lang": "go",
+   "pr": 7,
+   "title": "Database Performance Optimizations",
+   "bug": "Incorrect error level logging",
+   "severity": "Low",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "graphite"
+   ],
+   "base": "f84c8f685310cc41b52831c130e700a01b225b58",
+   "head": "81c45bfe449584dc7ff50e4fabd5d0c6568999b5",
+   "mergeBase": "f84c8f685310cc41b52831c130e700a01b225b58",
+   "changedFiles": 3
+  },
+  {
+   "id": "grafana-8",
+   "repo": "ai-code-review-evaluation/grafana-greptile",
+   "lang": "go",
+   "pr": 8,
+   "title": "Frontend Asset Optimization",
+   "bug": "Deadlock potential during concurrent annotation deletion operations",
+   "severity": "High",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "0a870e6a8855cee9c8ae391767da40dbb1c16cc6",
+   "head": "95000f9fc8049d47f837b6e8603c230c2a073ae5",
+   "mergeBase": "0a870e6a8855cee9c8ae391767da40dbb1c16cc6",
+   "changedFiles": 1
+  },
+  {
+   "id": "grafana-9",
+   "repo": "ai-code-review-evaluation/grafana-greptile",
+   "lang": "go",
+   "pr": 9,
+   "title": "Advanced SQL Analytics Framework",
+   "bug": "enableSqlExpressions function always returns false, disabling SQL functionality",
+   "severity": "Critical",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor",
+    "graphite"
+   ],
+   "base": "cbe1e7d63f098e306058c0fbcab2f5c30602fa7d",
+   "head": "ea71201ddc66f06a3f16387e85a09c53514aaadd",
+   "mergeBase": "cbe1e7d63f098e306058c0fbcab2f5c30602fa7d",
+   "changedFiles": 7
+  },
+  {
+   "id": "grafana-10",
+   "repo": "ai-code-review-evaluation/grafana-greptile",
+   "lang": "go",
+   "pr": 10,
+   "title": "Unified Storage Performance Optimizations",
+   "bug": "Race condition in cache locking",
+   "severity": "High",
+   "caughtBy": [
+    "greptile",
+    "cursor"
+   ],
+   "base": "871af07203177ce59a24e742107119409274f48a",
+   "head": "d762a9643618a6ba7c43da27374bd9ffc80889ce",
+   "mergeBase": "871af07203177ce59a24e742107119409274f48a",
+   "changedFiles": 5
+  },
+  {
+   "id": "keycloak-1",
+   "repo": "ai-code-review-evaluation/keycloak-greptile",
+   "lang": "java",
+   "pr": 27,
+   "title": "Fixing Re-authentication with passkeys",
+   "bug": "ConditionalPasskeysEnabled() called without UserModel parameter",
+   "severity": "Medium",
+   "caughtBy": [
+    "greptile"
+   ],
+   "base": "30f804af450dec523909a52f2a4b97302d27f5cc",
+   "head": "3214b188de808fdb0fff335556b686f1b0a63218",
+   "mergeBase": "30f804af450dec523909a52f2a4b97302d27f5cc",
+   "changedFiles": 9
+  },
+  {
+   "id": "keycloak-2",
+   "repo": "ai-code-review-evaluation/keycloak-greptile",
+   "lang": "java",
+   "pr": 2,
+   "title": "Add caching support for IdentityProviderStorageProvider.getForLogin operations",
+   "bug": "Recursive caching call using session instead of delegate",
+   "severity": "Critical",
+   "caughtBy": [
+    "greptile"
+   ],
+   "base": "5ff9e9147dc08432b3ec7753906467c390b1e6ee",
+   "head": "3e597722a9164d145bc46aa1de5bd714fb6ba357",
+   "mergeBase": "5ff9e9147dc08432b3ec7753906467c390b1e6ee",
+   "changedFiles": 4
+  },
+  {
+   "id": "keycloak-3",
+   "repo": "ai-code-review-evaluation/keycloak-greptile",
+   "lang": "java",
+   "pr": 3,
+   "title": "Add AuthzClientCryptoProvider for authorization client cryptographic operations",
+   "bug": "Returns wrong provider (default keystore instead of BouncyCastle)",
+   "severity": "High",
+   "caughtBy": [
+    "greptile",
+    "coderabbit"
+   ],
+   "base": "10aca5552314d6e5c9226f3c6d0107861c38c693",
+   "head": "b95d12a968e8374a93ddcd56f47ab12eb4136ff4",
+   "mergeBase": "10aca5552314d6e5c9226f3c6d0107861c38c693",
+   "changedFiles": 12
+  },
+  {
+   "id": "keycloak-4",
+   "repo": "ai-code-review-evaluation/keycloak-greptile",
+   "lang": "java",
+   "pr": 4,
+   "title": "Add rolling-updates feature flag and compatibility framework",
+   "bug": "Incorrect method call for exit codes",
+   "severity": "Medium",
+   "caughtBy": [],
+   "base": "690b0e4bef15654ea9037b0a26b3337e548c6b48",
+   "head": "0f91e67b9025d978059b21b5c41283e5000a509c",
+   "mergeBase": "690b0e4bef15654ea9037b0a26b3337e548c6b48",
+   "changedFiles": 11
+  },
+  {
+   "id": "keycloak-5",
+   "repo": "ai-code-review-evaluation/keycloak-greptile",
+   "lang": "java",
+   "pr": 5,
+   "title": "Add Client resource type and scopes to authorization schema",
+   "bug": "Inconsistent feature flag bug causing orphaned permissions",
+   "severity": "High",
+   "caughtBy": [
+    "cursor"
+   ],
+   "base": "baa6ebbeb8791017c01ce9fa63965f8dc584ddfe",
+   "head": "7e5540896bbbafc02234b6ea2b15215dc24cb972",
+   "mergeBase": "baa6ebbeb8791017c01ce9fa63965f8dc584ddfe",
+   "changedFiles": 10
+  },
+  {
+   "id": "keycloak-6",
+   "repo": "ai-code-review-evaluation/keycloak-greptile",
+   "lang": "java",
+   "pr": 6,
+   "title": "Add Groups resource type and scopes to authorization schema",
+   "bug": "Incorrect permission check in canManage() method",
+   "severity": "High",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "7a8d18122aea42278332120093d5cefce9748356",
+   "head": "679f44692dbc288bedc8f1535071c8467dbaf70c",
+   "mergeBase": "7a8d18122aea42278332120093d5cefce9748356",
+   "changedFiles": 19
+  },
+  {
+   "id": "keycloak-7",
+   "repo": "ai-code-review-evaluation/keycloak-greptile",
+   "lang": "java",
+   "pr": 7,
+   "title": "Add HTML sanitizer for translated message resources",
+   "bug": "Lithuanian translation files contain Italian text",
+   "severity": "Low",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "21d53112849fe55f328f3de2f071989b8763de61",
+   "head": "5d77e7ea7d431aa0a6b65904457b7471bd050e81",
+   "mergeBase": "21d53112849fe55f328f3de2f071989b8763de61",
+   "changedFiles": 48
+  },
+  {
+   "id": "keycloak-8",
+   "repo": "ai-code-review-evaluation/keycloak-greptile",
+   "lang": "java",
+   "pr": 8,
+   "title": "Implement access token context encoding framework",
+   "bug": "Wrong parameter in null check (grantType vs. rawTokenId)",
+   "severity": "Critical",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "b545339e2c924263a498653f348610de0c09059c",
+   "head": "c8738721df2cd2d16fe16adec571b4192354a771",
+   "mergeBase": "b545339e2c924263a498653f348610de0c09059c",
+   "changedFiles": 28
+  },
+  {
+   "id": "keycloak-9",
+   "repo": "ai-code-review-evaluation/keycloak-greptile",
+   "lang": "java",
+   "pr": 9,
+   "title": "Implement recovery key support for user storage providers",
+   "bug": "Unsafe raw List deserialization without type safety",
+   "severity": "Medium",
+   "caughtBy": [
+    "greptile",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "a0852eaa2ed19408ecf8ad02652802d00529a085",
+   "head": "134437a5a7e31472763ffa2ac3cc91030e7ee389",
+   "mergeBase": "a0852eaa2ed19408ecf8ad02652802d00529a085",
+   "changedFiles": 8
+  },
+  {
+   "id": "keycloak-10",
+   "repo": "ai-code-review-evaluation/keycloak-greptile",
+   "lang": "java",
+   "pr": 10,
+   "title": "Fix concurrent group access to prevent NullPointerException",
+   "bug": "Missing null check causing NullPointerException",
+   "severity": "Critical",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ],
+   "base": "e92b825a14800e42f42d5f22ee314e94cf7c4e27",
+   "head": "332c9b6e4a1288705f173a9b797742859384d1e0",
+   "mergeBase": "e92b825a14800e42f42d5f22ee314e94cf7c4e27",
+   "changedFiles": 4
+  },
+  {
+   "id": "discourse-1",
+   "repo": "ai-code-review-evaluation/discourse-greptile",
+   "lang": "ruby",
+   "pr": 1,
+   "title": "FEATURE: automatically downsize large images",
+   "bug": "Method overwriting causing parameter mismatch",
+   "severity": "Medium",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "3f71fa15c93bb0b751bb92abae1b5dc9a21bd4ca",
+   "head": "ffbaf8c54269df2ce510de91245760fddce09896",
+   "mergeBase": "3f71fa15c93bb0b751bb92abae1b5dc9a21bd4ca",
+   "changedFiles": 3
+  },
+  {
+   "id": "discourse-2",
+   "repo": "ai-code-review-evaluation/discourse-greptile",
+   "lang": "ruby",
+   "pr": 2,
+   "title": "FEATURE: per-topic unsubscribe option in emails",
+   "bug": "Nil reference non-existent TopicUser",
+   "severity": "High",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "56abd247e1829cb6de82dfcc8ce04deb5f0d1e91",
+   "head": "6669a2d94d76eea3b99b8c476d12b1eb66726b07",
+   "mergeBase": "56abd247e1829cb6de82dfcc8ce04deb5f0d1e91",
+   "changedFiles": 18
+  },
+  {
+   "id": "discourse-3",
+   "repo": "ai-code-review-evaluation/discourse-greptile",
+   "lang": "ruby",
+   "pr": 3,
+   "title": "Add comprehensive email validation for blocked users",
+   "bug": "BlockedEmail.should_block? modifies DB during read",
+   "severity": "Critical",
+   "caughtBy": [
+    "greptile",
+    "cursor"
+   ],
+   "base": "e25638dab0d4b98f99c8fe8976ccaae8f4fb9db3",
+   "head": "5f8a130277dbddc95d133cd2832be639baf89213",
+   "mergeBase": "e25638dab0d4b98f99c8fe8976ccaae8f4fb9db3",
+   "changedFiles": 10
+  },
+  {
+   "id": "discourse-4",
+   "repo": "ai-code-review-evaluation/discourse-greptile",
+   "lang": "ruby",
+   "pr": 4,
+   "title": "Enhance embed URL handling and validation system",
+   "bug": "SSRF vulnerability using open(url) without validation",
+   "severity": "Critical",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "62db063e1e1abe691313ab42682a68f796d63769",
+   "head": "4f8aed295a29954023b2849c060ef4fb299d1b5d",
+   "mergeBase": "62db063e1e1abe691313ab42682a68f796d63769",
+   "changedFiles": 28
+  },
+  {
+   "id": "discourse-5",
+   "repo": "ai-code-review-evaluation/discourse-greptile",
+   "lang": "ruby",
+   "pr": 5,
+   "title": "Optimize header layout performance with flexbox mixins",
+   "bug": "Mixing float: left with flexbox causes layout issues",
+   "severity": "Low",
+   "caughtBy": [
+    "coderabbit"
+   ],
+   "base": "98fa098e6fade3097a11fe7f99a98a4e6ffb4728",
+   "head": "5b229316ee4c661836ed1161139692a3e8527444",
+   "mergeBase": "98fa098e6fade3097a11fe7f99a98a4e6ffb4728",
+   "changedFiles": 5
+  },
+  {
+   "id": "discourse-6",
+   "repo": "ai-code-review-evaluation/discourse-greptile",
+   "lang": "ruby",
+   "pr": 6,
+   "title": "UX: show complete URL path if website domain is same as instance domain",
+   "bug": "String mutation with << operator",
+   "severity": "Medium",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ],
+   "base": "7a5fbae060bd0d3e29f3a4b5c6f2bfd8b2914dc7",
+   "head": "267d8be1f556ed59639ced396c885bb44586da19",
+   "mergeBase": "7a5fbae060bd0d3e29f3a4b5c6f2bfd8b2914dc7",
+   "changedFiles": 5
+  },
+  {
+   "id": "discourse-7",
+   "repo": "ai-code-review-evaluation/discourse-greptile",
+   "lang": "ruby",
+   "pr": 7,
+   "title": "scale-color $lightness must use $secondary for dark themes",
+   "bug": "Inconsistent theme color lightness affects visibility",
+   "severity": "Low",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ],
+   "base": "7554b5e3c458dc79b591d5e874e79ab10cf30c2f",
+   "head": "d38c4d5f7443223c81529c22470293771baf9f38",
+   "mergeBase": "7554b5e3c458dc79b591d5e874e79ab10cf30c2f",
+   "changedFiles": 32
+  },
+  {
+   "id": "discourse-8",
+   "repo": "ai-code-review-evaluation/discourse-greptile",
+   "lang": "ruby",
+   "pr": 8,
+   "title": "FIX: proper handling of group memberships",
+   "bug": "Race conditions in async member loading",
+   "severity": "High",
+   "caughtBy": [
+    "greptile"
+   ],
+   "base": "4975fc28903a84418f546b2809370f19abf10e08",
+   "head": "060cda77729cb1c4a827560e09e89a7b22078ba9",
+   "mergeBase": "4975fc28903a84418f546b2809370f19abf10e08",
+   "changedFiles": 16
+  },
+  {
+   "id": "discourse-9",
+   "repo": "ai-code-review-evaluation/discourse-greptile",
+   "lang": "ruby",
+   "pr": 9,
+   "title": "FEATURE: Localization fallbacks (server-side)",
+   "bug": "Thread-safety issue with lazy @loaded_locales",
+   "severity": "High",
+   "caughtBy": [
+    "greptile",
+    "copilot"
+   ],
+   "base": "728845d008f06828630a632e5c7d67e11bf15deb",
+   "head": "ecfa17b5a79dfdc91e7a4d50b42ae78a35d0a293",
+   "mergeBase": "728845d008f06828630a632e5c7d67e11bf15deb",
+   "changedFiles": 7
+  },
+  {
+   "id": "discourse-10",
+   "repo": "ai-code-review-evaluation/discourse-greptile",
+   "lang": "ruby",
+   "pr": 10,
+   "title": "FEATURE: Can edit category/host relationships for embedding",
+   "bug": "NoMethodError before_validation in EmbeddableHost",
+   "severity": "Critical",
+   "caughtBy": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ],
+   "base": "913c3d6f636d02b3dd6c2c022ca1af2bec95d752",
+   "head": "d1c69189f3c90ecf56013a8da904da9bff9a8e19",
+   "mergeBase": "913c3d6f636d02b3dd6c2c022ca1af2bec95d752",
+   "changedFiles": 36
+  }
+ ]
+}

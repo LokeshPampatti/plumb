@@ -1,0 +1,51 @@
+name: Plumb code review
+description: AI code review that shows its work. Verified findings, blast radius, explainable score, memory you can read.
+branding:
+  icon: check-circle
+  color: orange
+inputs:
+  provider:
+    description: anthropic | openai | ollama | none (static checks only)
+    default: anthropic
+  model:
+    description: Model id. Defaults to claude-opus-5-5 for anthropic.
+    default: ''
+  effort:
+    description: low | medium | high | xhigh | max
+    default: high
+  budget-usd:
+    description: Hard spend cap per review, in USD.
+    default: '2'
+  fail-on:
+    description: Fail the check when a finding at or above this severity exists (P0, P1, P2, none).
+    default: none
+  anthropic-api-key:
+    description: Anthropic API key (use a repository secret).
+    default: ''
+  openai-api-key:
+    description: OpenAI API key (use a repository secret).
+    default: ''
+  github-token:
+    description: Token used to comment, resolve threads and commit memory updates.
+    default: ${{ github.token }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - name: Build Plumb
+      shell: bash
+      run: cd "${{ github.action_path }}" && npm ci --no-audit --no-fund && npm run build
+    - name: Review
+      shell: bash
+      run: node "${{ github.action_path }}/bin/plumb.js" github
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+        OPENAI_API_KEY: ${{ inputs.openai-api-key }}
+        PLUMB_PROVIDER: ${{ inputs.provider }}
+        PLUMB_MODEL: ${{ inputs.model }}
+        PLUMB_EFFORT: ${{ inputs.effort }}
+        PLUMB_BUDGET_USD: ${{ inputs.budget-usd }}
+        PLUMB_FAIL_ON: ${{ inputs.fail-on }}

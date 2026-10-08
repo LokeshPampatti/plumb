@@ -1,0 +1,34 @@
+# Copy to .github/workflows/plumb.yml
+name: Plumb
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  issue_comment:
+    types: [created] # "/plumb review" on a PR
+  pull_request_review_comment:
+    types: [created] # "/plumb dismiss <reason>" in reply to a finding
+
+permissions:
+  contents: write # commit .plumb/memory.json when someone dismisses a finding
+  pull-requests: write
+
+concurrency:
+  group: plumb-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: >-
+      github.event_name == 'pull_request' ||
+      contains(github.event.comment.body, '/plumb') ||
+      contains(github.event.comment.body, '@plumb')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # history powers reviewer suggestions and revert-aware risk
+      - uses: YOUR-ORG/plumb@main
+        with:
+          anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          budget-usd: '2'
+          fail-on: P0

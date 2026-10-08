@@ -1,0 +1,78 @@
+{
+ "summary": {
+  "at": "2026-10-07T22:02:16.060Z",
+  "mode": "static",
+  "cases": 1,
+  "plumb": {
+   "caught": 0,
+   "rate": 0,
+   "staticCatches": 0,
+   "avgFindings": 38,
+   "usd": 0,
+   "seconds": 118.2
+  },
+  "others": {
+   "greptile": 1,
+   "cursor": 0,
+   "copilot": 0,
+   "coderabbit": 0,
+   "graphite": 0
+  },
+  "caughtByPlumbOnly": []
+ },
+ "results": [
+  {
+   "id": "sentry-1",
+   "bug": "Importing non-existent OptimizedCursorPaginator",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 38,
+   "findingTitles": [
+    "[P0] src/sentry/analytics/event.py:7 Imports `uuid1` from `uuid`, which does not define it",
+    "[P0] src/sentry/api/endpoints/organization_spans_aggregation.py:4 Imports `timezone` from `datetime`, which does not define it",
+    "[P0] src/sentry/integrations/web/debug/debug_notify_disable.py:17 Possible Slack token committed in plain text",
+    "[P0] src/sentry/metrics/minimetrics.py:2 Imports `timezone` from `datetime`, which does not define it",
+    "[P0] src/sentry/replays/usecases/ingest/dom_index.py:8 Imports `md5` from `hashlib`, which does not define it",
+    "[P0] src/sentry/replays/usecases/segment.py:4 Imports `timezone` from `datetime`, which does not define it",
+    "[P0] static/app/components/checkInTimeline/checkInTooltip.spec.tsx:5 Imports `testStatusStyle`, which this change removed from `static/app/components/checkInTimeline/utils/testUtils.tsx`",
+    "[P0] static/app/utils/profiling/renderers/flamegraphTextRenderer.benchmark.ts:11 Imports `LightFlamegraphTheme` from `../flamegraph/flamegraphTheme`, which does not define it",
+    "[P0] tests/sentry/data_secrecy/api/test_waive_data_secrecy.py:1 Imports `timezone` from `datetime`, which does not define it",
+    "[P0] tests/sentry/data_secrecy/service/test_data_secrecy_service.py:1 Imports `timezone` from `datetime`, which does not define it",
+    "[P0] tests/sentry/data_secrecy/test_data_secrecy_logic.py:1 Imports `timezone` from `datetime`, which does not define it",
+    "[P0] tests/sentry/grouping/test_parameterization.py:1 Imports `mock` from `unittest`, which does not define it",
+    "[P0] tests/sentry/metrics/test_minimetrics.py:2 Imports `mock` from `unittest`, which does not define it",
+    "[P0] tests/sentry/replays/unit/test_ingest_dom_index.py:5 Imports `mock` from `unittest`, which does not define it",
+    "[P0] tests/sentry/uptime/endpoints/test_project_uptime_alert_check_index.py:2 Imports `timezone` from `datetime`, which does not define it",
+    "[P0] tests/sentry/web/frontend/test_newest_performance_issue.py:5 Imports `mock` from `unittest`, which does not define it",
+    "[P0] tests/snuba/api/endpoints/test_organization_spans_aggregation.py:3 Imports `mock` from `unittest`, which does not define it",
+    "[P1] static/app/components/avatarChooser.tsx:119 This call to `onSave()` passes 1 argument, but it accepts at most 0",
+    "[P1] static/app/utils/profiling/profile/profile.benchmark.ts:62 This call to `importProfile()` is missing `type`",
+    "[P1] static/app/utils/profiling/profile/profile.benchmark.ts:65 This call to `importProfile()` is missing `type`",
+    "[P1] static/app/utils/profiling/profile/profile.benchmark.ts:68 This call to `importProfile()` is missing `type`",
+    "[P1] static/app/utils/profiling/profile/profile.benchmark.ts:70 This call to `importProfile()` is missing `type`",
+    "[P1] static/app/utils/profiling/profile/profile.benchmark.ts:73 This call to `importProfile()` is missing `type`",
+    "[P1] static/app/utils/profiling/renderers/flamegraphTextRenderer.benchmark.ts:100 This call to `importProfile()` is missing `type`",
+    "[P1] static/app/utils/profiling/renderers/flamegraphTextRenderer.benchmark.ts:112 This call to `importProfile()` is missing `type`",
+    "[P1] static/app/utils/profiling/renderers/flamegraphTextRenderer.benchmark.ts:198 This call to `makeDrawFullScreen()` is missing `flamegraph`",
+    "[P1] static/app/utils/profiling/renderers/flamegraphTextRenderer.benchmark.ts:202 This call to `makeDrawCenterScreen()` is missing `flamegraph`",
+    "[P1] static/app/utils/profiling/renderers/flamegraphTextRenderer.benchmark.ts:206 This call to `makeDrawRightSideOfScreen()` is missing `flamegraph`",
+    "[P1] static/app/utils/profiling/renderers/flamegraphTextRenderer.benchmark.ts:211 This call to `makeDrawFullScreen()` is missing `flamegraph`",
+    "[P1] static/app/utils/profiling/renderers/flamegraphTextRenderer.benchmark.ts:216 This call to `makeDrawCenterScreen()` is missing `flamegraph`",
+    "[P1] static/app/utils/profiling/renderers/flamegraphTextRenderer.benchmark.ts:220 This call to `makeDrawRightSideOfScreen()` is missing `flamegraph`",
+    "[P1] static/app/views/detectors/components/connectedAutomationList.tsx:32 This call to `toggleConnected()` passes 1 argument, but it accepts at most 0",
+    "[P1] static/app/views/explore/logs/useLogsQuery.tsx:190 `getPageParam()` now takes 2 arguments, but 2 callers still pass the old shape",
+    "[P1] static/app/views/insights/agentMonitoring/utils/query.tsx:13 Possible hard-coded `AI_TOKEN_USAGE_ATTRIBUTE` committed in plain text",
+    "[P1] static/app/views/insights/types.tsx:43 Possible hard-coded `AI_PROMPT_TOKENS_USED` committed in plain text",
+    "[P1] static/app/views/insights/types.tsx:44 Possible hard-coded `AI_COMPLETION_TOKENS_USED` committed in plain text",
+    "[P1] tests/sentry/incidents/test_subscription_processor.py:2820 Possible Slack token committed in plain text",
+    "[P1] tests/sentry/incidents/test_subscription_processor.py:2879 Possible Slack token committed in plain text"
+   ],
+   "usd": 0,
+   "seconds": 118.2,
+   "others": [
+    "greptile"
+   ]
+  }
+ ]
+}
