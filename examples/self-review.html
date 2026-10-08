@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plumb review · feature vs main</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f3efe6; --paper-2: #ebe5d8; --ink: #1d1b16; --ink-2: #5d574b; --rule: #cfc6b3;
+  --p0: #c2410c; --p1: #a16207; --p2: #3f6c8a; --ok: #3f7a4f; --line: #b91c1c;
+  --code-bg: #fbf9f4; --hit: #f6e2cf;
+  --serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --sans: 'Instrument Sans', -apple-system, 'Segoe UI', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #16150f; --paper-2: #1e1c16; --ink: #ece6d6; --ink-2: #a39b88; --rule: #3a362c;
+    --p0: #f07a3f; --p1: #d9a93b; --p2: #7fb0d1; --ok: #7cbf8c; --line: #e5534b;
+    --code-bg: #1b1a14; --hit: #3a2a1c;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #16150f; --paper-2: #1e1c16; --ink: #ece6d6; --ink-2: #a39b88; --rule: #3a362c;
+  --p0: #f07a3f; --p1: #d9a93b; --p2: #7fb0d1; --ok: #7cbf8c; --line: #e5534b;
+  --code-bg: #1b1a14; --hit: #3a2a1c;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--paper); color: var(--ink); }
+body { font: 15px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+code, pre, .ln, .loc, .id, .num { font-family: var(--mono); font-size: 12.5px; font-variant-ligatures: none; }
+.sheet { max-width: 980px; margin: 0 auto; padding: 48px 24px 96px 72px; position: relative; }
+.sheet::before { content: ''; position: absolute; left: 40px; top: 0; bottom: 0; width: 1px; background: var(--line); opacity: .55; }
+.bob { position: absolute; left: 33px; top: 238px; width: 15px; height: 22px; background: var(--line);
+  clip-path: polygon(50% 100%, 0 30%, 15% 0, 85% 0, 100% 30%); transition: top .6s; }
+.kicker { font: 500 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+h1 { font: 400 clamp(34px, 6vw, 56px)/1.02 var(--serif); margin: 14px 0 8px; letter-spacing: -.01em; }
+h1 em { font-style: italic; color: var(--ink-2); }
+.meta { color: var(--ink-2); font-size: 13.5px; }
+.meta code { font-size: 12px; }
+.top { display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: start; margin: 40px 0 28px; padding: 28px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.score { font: 400 112px/0.8 var(--serif); letter-spacing: -.03em; }
+.score small { font-size: 40px; color: var(--ink-2); }
+.verdict { font: italic 400 22px/1.2 var(--serif); margin-top: 12px; }
+.ledger { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.ledger td { padding: 5px 0; border-bottom: 1px dotted var(--rule); vertical-align: top; }
+.ledger td.d { font-family: var(--mono); font-size: 12.5px; color: var(--p0); width: 64px; }
+.ledger caption { text-align: left; font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); padding-bottom: 8px; }
+.gate { margin-top: 14px; font-size: 13.5px; color: var(--ink-2); }
+.counts { display: flex; gap: 22px; flex-wrap: wrap; margin: 0 0 26px; }
+.counts button { all: unset; cursor: pointer; font: 500 12px var(--mono); letter-spacing: .06em; padding: 6px 0; border-bottom: 2px solid transparent; color: var(--ink-2); }
+.counts button[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); }
+.counts b { font-weight: 500; }
+h2 { font: 400 30px/1.1 var(--serif); margin: 56px 0 18px; }
+h2 .kicker { display: block; margin-bottom: 8px; }
+.finding { padding: 26px 0 24px; border-top: 1px solid var(--rule); position: relative; }
+.finding header { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.sev { font: 600 12px var(--mono); padding: 2px 7px; color: var(--paper); border-radius: 2px; }
+.sev-P0 .sev { background: var(--p0); } .sev-P1 .sev { background: var(--p1); } .sev-P2 .sev { background: var(--p2); }
+.finding::before { content: ''; position: absolute; left: -36px; top: 33px; width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--paper); }
+.sev-P0::before { background: var(--p0); } .sev-P1::before { background: var(--p1); } .sev-P2::before { background: var(--p2); }
+.num { color: var(--ink-2); }
+.where code { color: var(--ink); }
+.pill { font: 500 11px var(--mono); color: var(--ink-2); border: 1px solid var(--rule); padding: 1px 7px; border-radius: 99px; }
+.pill.new { color: var(--p0); border-color: var(--p0); }
+.finding h3 { font: 400 25px/1.2 var(--serif); margin: 10px 0 14px; }
+.finding h3 code, .body code, .note code, .ledger code { font-size: .86em; background: var(--paper-2); padding: 1px 5px; border-radius: 3px; }
+.finding h3 code { font-size: .74em; vertical-align: .08em; }
+.frame { width: 100%; border-collapse: collapse; background: var(--code-bg); border: 1px solid var(--rule); margin: 0 0 14px; display: block; overflow-x: auto; }
+.frame td { padding: 1px 12px; white-space: pre; font-family: var(--mono); font-size: 12.5px; }
+.frame .ln { color: var(--ink-2); text-align: right; user-select: none; border-right: 1px solid var(--rule); width: 1%; }
+.frame tr.hit td { background: var(--hit); }
+.frame tr.hit .src { box-shadow: inset 0 -1px 0 var(--line); }
+.body { margin: 0 0 14px; max-width: 70ch; }
+.evidence { list-style: none; padding: 0; margin: 0 0 14px; }
+.evidence li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; padding: 6px 0; font-size: 13.5px; }
+.evidence .mark { font: italic 400 18px/1 var(--serif); color: var(--line); }
+.evidence pre { margin: 4px 0 0; padding: 6px 10px; background: var(--code-bg); border-left: 2px solid var(--rule); white-space: pre-wrap; word-break: break-word; }
+.fix { margin: 0 0 14px; }
+.fix .label, .label { font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ok); margin-bottom: 6px; }
+.fix pre { margin: 0; padding: 10px 14px; background: var(--code-bg); border-left: 2px solid var(--ok); overflow-x: auto; }
+.finding footer { display: flex; gap: 16px; flex-wrap: wrap; font: 400 12px var(--mono); color: var(--ink-2); }
+.v-reproduced, .v-deterministic, .v-confirmed { color: var(--ok); }
+.repro { margin: 0 0 14px; font-size: 13px; }
+.repro summary { cursor: pointer; font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ok); }
+.repro pre { padding: 10px 14px; background: var(--code-bg); border-left: 2px solid var(--ok); overflow-x: auto; }
+.repro pre.out { border-left-color: var(--p0); }
+.v-unverified { color: var(--p1); }
+.skeptic { font-size: 13px; color: var(--ink-2); margin: 10px 0 0; max-width: 70ch; }
+.blast-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.blast { width: 100%; min-width: 620px; height: auto; font-family: var(--mono); }
+.blast .sym { font: 500 13px var(--mono); fill: var(--ink); }
+.blast .caller { font-size: 12px; fill: var(--ink-2); }
+.blast .edge { fill: none; stroke: var(--ink-2); stroke-width: 1; }
+.blast .edge.out { stroke: var(--p0); stroke-dasharray: 3 3; }
+.blast .dot { fill: var(--ink-2); } .blast .dot.out { fill: var(--p0); }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; }
+.small { font-size: 13.5px; }
+.small ul { padding-left: 18px; margin: 6px 0; }
+.empty { font: italic 400 26px var(--serif); color: var(--ok); padding: 30px 0; border-top: 1px solid var(--rule); }
+.prompt { position: relative; }
+.prompt pre { max-height: 260px; overflow: auto; padding: 34px 14px 14px; background: var(--code-bg); border: 1px solid var(--rule); white-space: pre-wrap; }
+.prompt button { all: unset; cursor: pointer; position: absolute; top: 10px; right: 12px; font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.colophon { margin-top: 64px; padding-top: 16px; border-top: 1px solid var(--rule); font: 400 12px var(--mono); color: var(--ink-2); display: flex; gap: 18px; flex-wrap: wrap; }
+.theme { all: unset; cursor: pointer; position: absolute; right: 24px; top: 48px; font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+@media (max-width: 640px) {
+  .sheet { padding: 28px 16px 72px 34px; }
+  .sheet::before { left: 18px; } .bob { left: 11px; }
+  .finding::before { left: -20px; }
+  .top { grid-template-columns: 1fr; gap: 18px; }
+  .score { font-size: 88px; }
+  .theme { position: static; display: block; margin-bottom: 14px; }
+  .finding h3 { font-size: 22px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .finding { animation: settle .5s both; }
+  @keyframes settle { from { opacity: 0; transform: translateY(6px); filter: blur(2px); } }
+}
+</style>
+</head>
+<body>
+<main class="sheet">
+  <div class="bob" aria-hidden="true"></div>
+  <button class="theme" onclick="var d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark'">Theme</button>
+  <div class="kicker">Plumb · field report · 2026-10-08 15:50</div>
+  <h1>feature vs main<br><em>4 findings</em></h1>
+  <div class="meta">8 files · +52 −8 · risk <b>medium</b> · head <code>66b144d17</code></div>
+
+  <section class="top">
+    <div>
+      <div class="score">0<small>/5</small></div>
+      <div class="verdict">Critical problems, rethink before merging</div>
+    </div>
+    <div>
+      <table class="ledger"><caption>How the score was computed · starts at 5.00</caption><tr><td class="d">-2.50</td><td>P0 src/cli.ts:11 Imports <code>forget</code>, which this change removed from <code>src/memory.ts</code></td></tr><tr><td class="d">-2.50</td><td>P0 src/llm/factory.ts:6 Possible Anthropic API key committed in plain text</td></tr><tr><td class="d">-1.00</td><td>P1 src/memory.ts:43 <code>keywords()</code> now takes 3 arguments, but 5 callers still pass the old shape</td></tr><tr><td class="d">-1.00</td><td>P1 src/stats.ts:74 tsc: Type 'string' is not assignable to type 'number'.</td></tr></table>
+      <div class="gate">Auto-approve is off for this repo (autoApprove.enabled = false).</div>
+    </div>
+  </section>
+
+  <div class="counts" role="group" aria-label="Filter by severity">
+    <button aria-pressed="true" data-f="all">All <b>4</b></button>
+    <button aria-pressed="false" data-f="P0">P0 <b>2</b></button>
+    <button aria-pressed="false" data-f="P1">P1 <b>2</b></button>
+    <button aria-pressed="false" data-f="P2">P2 <b>0</b></button>
+  </div>
+  
+  <article class="finding sev-P0" data-sev="P0" id="f-b9ea4f3f77be">
+    <header>
+      <span class="sev">P0</span>
+      <span class="num">№ 01</span>
+      <span class="where"><code>src/cli.ts:11</code></span>
+      <span class="pill">still open</span>
+    </header>
+    <h3>Imports <code>forget</code>, which this change removed from <code>src/memory.ts</code></h3>
+    <table class="frame"><tr class=""><td class="ln">8</td><td class="src">import { repoRoot, Snapshot, type DiffMode } from './git.js';</td></tr><tr class=""><td class="ln">9</td><td class="src">import { RepoIndex } from './index/graph.js';</td></tr><tr class=""><td class="ln">10</td><td class="src">import { detectProvider } from './llm/factory.js';</td></tr><tr class="hit"><td class="ln">11</td><td class="src">import { addPreference, forget, learnFromDismissal, loadMemory, saveMemory } from './memory.js';</td></tr><tr class=""><td class="ln">12</td><td class="src">import { renderHtml } from './output/html.js';</td></tr><tr class=""><td class="ln">13</td><td class="src">import { fixPrompt, renderMarkdown } from './output/markdown.js';</td></tr><tr class=""><td class="ln">14</td><td class="src">import { renderSarif } from './output/sarif.js';</td></tr></table>
+    <p class="body"><code>forget</code> no longer exists in <code>src/memory.ts</code>, but <code>src/cli.ts</code> still imports it (and this file is not part of the change). This breaks at build time or on first use.</p>
+    <ol class="evidence"><li><span class="mark">1</span><div><code class="loc">src/cli.ts:11</code> <span class="note">reference to removed <code>forget</code> · tsc confirms: Module '&quot;./memory.js&quot;' has no exported member 'forget'</span><pre>import { addPreference, forget, learnFromDismissal, loadMemory, saveMemory } from './memory.js';</pre></div></li></ol>
+    
+    
+    <footer>
+      <span class="verif v-deterministic">Proven by static analysis</span>
+      <span>contract</span>
+      
+      <span class="id">b9ea4f3f77be</span>
+    </footer>
+    
+  </article>
+  <article class="finding sev-P0" data-sev="P0" id="f-185e6c5f058c">
+    <header>
+      <span class="sev">P0</span>
+      <span class="num">№ 02</span>
+      <span class="where"><code>src/llm/factory.ts:6</code></span>
+      <span class="pill">still open</span>
+    </header>
+    <h3>Possible Anthropic API key committed in plain text</h3>
+    <table class="frame"><tr class=""><td class="ln">3</td><td class="src">import { ClaudeCodeProvider, OpenAICompatibleProvider } from './others.js';</td></tr><tr class=""><td class="ln">4</td><td class="src">import type { Provider } from './provider.js';</td></tr><tr class=""><td class="ln">5</td><td class="src"> </td></tr><tr class="hit"><td class="ln">6</td><td class="src">const FALLBACK_KEY = &quot;sk-a…************&quot;; // TODO remove</td></tr><tr class=""><td class="ln">7</td><td class="src">export function makeProvider(cfg: PlumbConfig['model'], which: 'finder' | 'verifier' = 'finder'): Provider | null {</td></tr><tr class=""><td class="ln">8</td><td class="src">  const model = which === 'verifier' &amp;&amp; cfg.verifier ? cfg.verifier : cfg.name;</td></tr><tr class=""><td class="ln">9</td><td class="src">  switch (cfg.provider) {</td></tr></table>
+    <p class="body">Line 6 adds what looks like an Anthropic API key (<code>sk-a…************</code>). Anything pushed to a remote should be treated as leaked: rotate it, then load it from an environment variable or secret manager.</p>
+    <ol class="evidence"><li><span class="mark">1</span><div><code class="loc">src/llm/factory.ts:6</code> <span class="note">added line (value redacted)</span><pre>const FALLBACK_KEY = &quot;sk-a…************&quot;; // TODO remove</pre></div></li></ol>
+    
+    
+    <footer>
+      <span class="verif v-deterministic">Proven by static analysis</span>
+      <span>secret</span>
+      
+      <span class="id">185e6c5f058c</span>
+    </footer>
+    
+  </article>
+  <article class="finding sev-P1" data-sev="P1" id="f-d6327ef4a717">
+    <header>
+      <span class="sev">P1</span>
+      <span class="num">№ 03</span>
+      <span class="where"><code>src/memory.ts:43</code></span>
+      <span class="pill">still open</span>
+    </header>
+    <h3><code>keywords()</code> now takes 3 arguments, but 5 callers still pass the old shape</h3>
+    <table class="frame"><tr class=""><td class="ln">40</td><td class="src">  ),</td></tr><tr class=""><td class="ln">41</td><td class="src">);</td></tr><tr class=""><td class="ln">42</td><td class="src"> </td></tr><tr class="hit"><td class="ln">43</td><td class="src">export function keywords(text: string, max: number, minLen: number): string[] {</td></tr><tr class=""><td class="ln">44</td><td class="src">  const words = text</td></tr><tr class=""><td class="ln">45</td><td class="src">    .toLowerCase()</td></tr><tr class=""><td class="ln">46</td><td class="src">    .replace(/`[^`]*`/g, ' ')</td></tr></table>
+    <p class="body">The parameter list of <code>keywords</code> changed in this diff (was 1-2 arguments, now 3 arguments). These call sites were not updated, and 4 of them are in files this change doesn't touch, so a diff-only review won't see them. This will fail to compile.</p>
+    <ol class="evidence"><li><span class="mark">1</span><div><code class="loc">src/memory.ts:43</code> <span class="note">new signature</span><pre>export function keywords(text: string, max: number, minLen: number): string[] {</pre></div></li><li><span class="mark">2</span><div><code class="loc">bench/run.ts:99</code> <span class="note">caller passes 2, missing <code>minLen</code> (file not in this diff)</span><pre>const want = new Set([...keywords(c.bug, 12), ...(c.bug.match(/[A-Za-z_][A-Za-z0-9_.]{4,}/g) ?? []).map((w) =&gt; w.toLowerCase())]);</pre></div></li><li><span class="mark">3</span><div><code class="loc">src/memory.ts:136</code> <span class="note">caller passes 1, missing <code>max</code>, <code>minLen</code> · tsc confirms: Expected 3 arguments, but got 1</span><pre>const kw = keywords(f.title);</pre></div></li><li><span class="mark">4</span><div><code class="loc">src/review/pipeline.ts:122</code> <span class="note">caller passes 2, missing <code>minLen</code> (file not in this diff) · tsc confirms: Expected 3 arguments, but got 2</span><pre>return keywords(title, 6).filter((w) =&gt; kw.includes(w)).length;</pre></div></li><li><span class="mark">5</span><div><code class="loc">src/review/pipeline.ts:131</code> <span class="note">caller passes 2, missing <code>minLen</code> (file not in this diff) · tsc confirms: Expected 3 arguments, but got 2</span><pre>const kw = keywords(c.title, 6);</pre></div></li><li><span class="mark">6</span><div><code class="loc">src/review/pipeline.ts:295</code> <span class="note">caller passes 2, missing <code>minLen</code> (file not in this diff) · tsc confirms: Expected 3 arguments, but got 2</span><pre>const kw = keywords(c.title, 6);</pre></div></li></ol>
+    
+    
+    <footer>
+      <span class="verif v-deterministic">Proven by static analysis</span>
+      <span>contract</span>
+      
+      <span class="id">d6327ef4a717</span>
+    </footer>
+    
+  </article>
+  <article class="finding sev-P1" data-sev="P1" id="f-f2040ec6d5ec">
+    <header>
+      <span class="sev">P1</span>
+      <span class="num">№ 04</span>
+      <span class="where"><code>src/stats.ts:74</code></span>
+      <span class="pill new">new</span>
+    </header>
+    <h3>tsc: Type 'string' is not assignable to type 'number'.</h3>
+    <table class="frame"><tr class=""><td class="ln">71</td><td class="src">    srcs.set(f.source, s);</td></tr><tr class=""><td class="ln">72</td><td class="src">  }</td></tr><tr class=""><td class="ln">73</td><td class="src">  const acted = fixed.size + dismissed.size;</td></tr><tr class="hit"><td class="ln">74</td><td class="src">  const label: number = acted &gt; 0 ? 'some' : 'none';</td></tr><tr class=""><td class="ln">75</td><td class="src">  void label;</td></tr><tr class=""><td class="ln">76</td><td class="src">  return {</td></tr><tr class=""><td class="ln">77</td><td class="src">    runs: entries.length,</td></tr></table>
+    <p class="body"><code>tsc</code> reports TS2322 on a line this change added: Type 'string' is not assignable to type 'number'. This is your project's own toolchain, so it is not a model guess.</p>
+    <ol class="evidence"><li><span class="mark">1</span><div><code class="loc">src/stats.ts:74</code> <span class="note">tsc TS2322</span><pre>const label: number = acted &gt; 0 ? 'some' : 'none';</pre></div></li></ol>
+    
+    
+    <footer>
+      <span class="verif v-deterministic">Proven by static analysis</span>
+      <span>syntax</span>
+      
+      <span class="id">f2040ec6d5ec</span>
+    </footer>
+    
+  </article>
+
+  
+
+  <h2><span class="kicker">Code graph</span>Blast radius</h2>
+  <p class="small">Who calls the code this change touched. Dashed red lines are callers outside the diff: places a diff-only review never reads.</p>
+  <div class="blast-wrap"><svg class="blast" viewBox="0 0 760 282" preserveAspectRatio="xMinYMin meet" role="img" aria-label="Callers of changed code"><text x="0" y="22" class="sym">keywords</text><path d="M 210 18 C 260 18, 260 18, 310 18" class="edge out"/><circle cx="310" cy="18" r="3.5" class="dot out"/><text x="322" y="22" class="caller">bench/run.ts:99  · outside diff</text><path d="M 210 18 C 260 18, 260 48, 310 48" class="edge out"/><circle cx="310" cy="48" r="3.5" class="dot out"/><text x="322" y="52" class="caller">src/memory.ts:136  · outside diff</text><path d="M 210 18 C 260 18, 260 78, 310 78" class="edge out"/><circle cx="310" cy="78" r="3.5" class="dot out"/><text x="322" y="82" class="caller">src/review/pipeline.ts:122  · outside diff</text><path d="M 210 18 C 260 18, 260 108, 310 108" class="edge out"/><circle cx="310" cy="108" r="3.5" class="dot out"/><text x="322" y="112" class="caller">src/review/pipeline.ts:131  · outside diff</text><path d="M 210 18 C 260 18, 260 138, 310 138" class="edge out"/><circle cx="310" cy="138" r="3.5" class="dot out"/><text x="322" y="142" class="caller">src/review/pipeline.ts:295  · outside diff</text><text x="0" y="190" class="sym">decideGate</text><path d="M 210 186 C 260 186, 260 186, 310 186" class="edge out"/><circle cx="310" cy="186" r="3.5" class="dot out"/><text x="322" y="190" class="caller">src/review/pipeline.ts:406  · outside diff</text><text x="0" y="238" class="sym">computeStats</text><path d="M 210 234 C 260 234, 260 234, 310 234" class="edge out"/><circle cx="310" cy="234" r="3.5" class="dot out"/><text x="322" y="238" class="caller">src/cli.ts:410  · outside diff</text></svg></div>
+
+  <h2><span class="kicker">Context</span>Around this change</h2>
+  <div class="cols small">
+    <div><div class="label">History</div>
+      <ul><li><code>src/memory.ts</code>: 3 commits, 1 fix</li><li><code>src/llm/factory.ts</code>: 2 commits, 0 fixes</li><li><code>src/review/score.ts</code>: 2 commits, 0 fixes</li><li><code>src/stats.ts</code>: 2 commits, 0 fixes</li><li><code>.plumb/.gitignore</code>: 0 commits, 0 fixes</li><li><code>.plumb/config.json</code>: 0 commits, 0 fixes</li></ul>
+    </div>
+    <div><div class="label">Suggested reviewers</div>
+      <ul><li>Dana Lee <span class="meta">(1 file)</span></li></ul>
+    </div>
+    
+  </div>
+
+  <h2><span class="kicker">Hand off</span>Fix with your coding agent</h2>
+  <div class="prompt"><button onclick="navigator.clipboard.writeText(this.nextElementSibling.innerText);this.textContent='Copied'">Copy</button><pre>Fix these code review findings. Verify each one against the code first; if a finding is wrong, say why instead of changing code. Run the tests afterwards.
+
+1. src/cli.ts:11 [P0] Imports `forget`, which this change removed from `src/memory.ts`
+   `forget` no longer exists in `src/memory.ts`, but `src/cli.ts` still imports it (and this file is not part of the change). This breaks at build time or on first use.
+   Evidence: src/cli.ts:11 (reference to removed `forget` · tsc confirms: Module '&quot;./memory.js&quot;' has no exported member 'forget')
+
+2. src/llm/factory.ts:6 [P0] Possible Anthropic API key committed in plain text
+   Line 6 adds what looks like an Anthropic API key (`sk-a…************`). Anything pushed to a remote should be treated as leaked: rotate it, then load it from an environment variable or secret manager.
+   Evidence: src/llm/factory.ts:6 (added line (value redacted))
+
+3. src/memory.ts:43 [P1] `keywords()` now takes 3 arguments, but 5 callers still pass the old shape
+   The parameter list of `keywords` changed in this diff (was 1-2 arguments, now 3 arguments). These call sites were not updated, and 4 of them are in files this change doesn't touch, so a diff-only review won't see them. This will fail to compile.
+   Evidence: src/memory.ts:43 (new signature); bench/run.ts:99 (caller passes 2, missing `minLen` (file not in this diff)); src/memory.ts:136 (caller passes 1, missing `max`, `minLen` · tsc confirms: Expected 3 arguments, but got 1); src/review/pipeline.ts:122 (caller passes 2, missing `minLen` (file not in this diff) · tsc confirms: Expected 3 arguments, but got 2); src/review/pipeline.ts:131 (caller passes 2, missing `minLen` (file not in this diff) · tsc confirms: Expected 3 arguments, but got 2); src/review/pipeline.ts:295 (caller passes 2, missing `minLen` (file not in this diff) · tsc confirms: Expected 3 arguments, but got 2)
+
+4. src/stats.ts:74 [P1] tsc: Type 'string' is not assignable to type 'number'.
+   `tsc` reports TS2322 on a line this change added: Type 'string' is not assignable to type 'number'. This is your project's own toolchain, so it is not a model guess.
+   Evidence: src/stats.ts:74 (tsc TS2322)
+</pre></div>
+
+  <div class="colophon">
+    <span>static checks only · $0.00</span>
+    
+    
+    <span>2.0s</span>
+    <span>plumb v0.1.0</span>
+  </div>
+</main>
+<script>
+document.querySelectorAll('.counts button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.counts button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    var f = b.dataset.f;
+    document.querySelectorAll('.finding').forEach(function (el) { el.style.display = f === 'all' || el.dataset.sev === f ? '' : 'none'; });
+  });
+});
+</script>
+</body>
+</html>

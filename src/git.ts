@@ -168,6 +168,8 @@ export interface ChangeSet {
   label: string;
   oldSnap: Snapshot;
   newSnap: Snapshot;
+  /** The files on disk are exactly the reviewed revision, so tools that read the disk see the right code. */
+  worktreeIsHead: boolean;
 }
 
 const DIFF_FLAGS = ['--no-color', '--no-ext-diff', '-M', '--unified=3'];
@@ -227,13 +229,19 @@ export function collectChanges(cwd: string, mode: DiffMode): ChangeSet {
 
   const files = parseUnifiedDiff(diffText);
   const newSnap = new Snapshot(root, headRef);
+  let worktreeIsHead = headRef === null;
+  if (headRef && headRef !== ':') {
+    const resolved = git(root, ['rev-parse', '--verify', '-q', `${headRef}^{commit}`], { allowFail: true }).trim();
+    const dirty = git(root, ['status', '--porcelain', '--untracked-files=no'], { allowFail: true }).trim();
+    worktreeIsHead = !!resolved && resolved === headSha(root) && dirty === '';
+  }
   for (const u of untracked) {
     if (files.some((f) => f.path === u)) continue;
     const content = newSnap.read(u);
     if (content === null || content.includes('\0')) continue;
     files.push(addedFileChange(u, content));
   }
-  return { root, mode, baseRef, headRef, files, label, oldSnap: new Snapshot(root, baseRef), newSnap };
+  return { root, mode, baseRef, headRef, files, label, oldSnap: new Snapshot(root, baseRef), newSnap, worktreeIsHead };
 }
 
 export interface CommitInfo {

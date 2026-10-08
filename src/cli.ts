@@ -330,7 +330,7 @@ program
       console.log(`${pc.bold(t.name)} ${pc.dim(`${t.file}:${t.line}`)}  ${callers.length} caller${callers.length === 1 ? '' : 's'}`);
       for (const c of callers.slice(0, 30)) console.log(`  └ ${c.file}:${c.call.line} ${pc.dim(`(${c.via}, ${Math.round(c.confidence * 100)}%)`)}`);
       const importers = idx.importersOf(t.file).length;
-      if (importers) console.log(pc.dim(`  ${importers} file${importers === 1 ? '' : 's'} import ${t.file}`));
+      if (importers) console.log(pc.dim(`  ${importers} file${importers === 1 ? ' imports' : 's import'} ${t.file}`));
     }
   });
 
@@ -396,7 +396,22 @@ program
       process.exitCode = 1;
       return;
     }
-    writeFileSync(p, `#!/bin/sh\n${marker}\nnpx --no-install plumb review --branch --static --fail-on P0 || {\n  echo "plumb: P0 findings above. Push anyway with: git push --no-verify"\n  exit 1\n}\n`);
+    writeFileSync(
+      p,
+      [
+        '#!/bin/sh',
+        marker,
+        'if command -v plumb >/dev/null 2>&1; then P=plumb',
+        'elif [ -x node_modules/.bin/plumb ]; then P=node_modules/.bin/plumb',
+        'else echo "plumb: not installed here, skipping the pre-push review"; exit 0; fi',
+        '"$P" review --branch --static --fail-on P0',
+        'code=$?',
+        'if [ "$code" -eq 1 ]; then echo "plumb: P0 findings above. Push anyway with: git push --no-verify"; exit 1; fi',
+        '# Any other failure (bad config, not a branch) should not block a push.',
+        'exit 0',
+        '',
+      ].join('\n'),
+    );
     chmodSync(p, 0o755);
     console.log('Installed .git/hooks/pre-push (static checks only, no model calls).');
   });

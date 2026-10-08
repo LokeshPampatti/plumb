@@ -81,7 +81,7 @@ export async function runToolchain(ctx: AnalysisContext, opts: { timeoutMs?: num
   const timeoutMs = opts.timeoutMs ?? 180_000;
   const results: ToolResult[] = [];
   // Tools read the working tree, so they only describe the "new" side when that is what's on disk.
-  if (changes.headRef !== null) {
+  if (!changes.worktreeIsHead) {
     return { findings: [], results: [{ tool: 'toolchain', ran: false, ms: 0, note: 'skipped: the reviewed revision is not checked out', diagnostics: [] }] };
   }
   const changed = changes.files.filter((f) => f.status !== 'deleted' && ctx.reviewFiles.has(f.path));
@@ -133,7 +133,7 @@ export async function runToolchain(ctx: AnalysisContext, opts: { timeoutMs?: num
             file: d.file,
             line: d.line,
             title: `${res.tool}: ${d.message.length > 110 ? d.message.slice(0, 107) + '...' : d.message}`,
-            body: `\`${res.tool}\` reports ${d.code} on a line this change added: ${d.message}. This is your project's own toolchain, so it is not a model guess.`,
+            body: `\`${res.tool}\` reports ${d.code} on a line this change added: ${d.message.replace(/\.$/, '')}. This is your project's own toolchain, so it is not a model guess.`,
             evidence: [evidence(changes.newSnap, d.file, d.line, `${res.tool} ${d.code}`)],
             confidence: 0.98,
             verification: 'deterministic',

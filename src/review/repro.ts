@@ -95,7 +95,7 @@ export async function reproduce(
   opts: { max?: number; timeoutMs?: number; keepDir?: string; log?: (m: string) => void } = {},
 ): Promise<ReproResult[]> {
   const root = ctx.changes.root;
-  if (ctx.changes.headRef !== null) return []; // needs the reviewed code on disk
+  if (!ctx.changes.worktreeIsHead) return []; // needs the reviewed code on disk
   const results: ReproResult[] = [];
   const targets = findings.filter((f) => f.source === 'llm' && (f.severity === 'P0' || f.severity === 'P1') && !isTestPath(f.file)).slice(0, opts.max ?? 5);
   for (const f of targets) {

@@ -50,7 +50,7 @@ export function secretFindings(ctx: AnalysisContext): Finding[] {
               line: l.newNo,
               title: `Possible ${hit.name} committed in plain text`,
               body:
-                `Line ${l.newNo} adds what looks like a ${hit.name} (\`${redact(hit.match)}\`). ` +
+                `Line ${l.newNo} adds what looks like ${/^[aeiou]/i.test(hit.name) ? 'an' : 'a'} ${hit.name} (\`${redact(hit.match)}\`). ` +
                 'Anything pushed to a remote should be treated as leaked: rotate it, then load it from an environment variable or secret manager.' +
                 (testy ? ' This file looks like test data, so it may be a fake value.' : ''),
               // Evidence snippets for secrets are redacted on purpose.

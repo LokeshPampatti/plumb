@@ -191,6 +191,17 @@ export async function runReview(opts: ReviewOptions): Promise<ReviewResult> {
     else staticFindings.push(t);
   }
   for (const r of toolchain.results) if (r.note && r.note !== 'typescript is not installed in node_modules') notes.push(`${r.tool}: ${r.note}`);
+  // The compiler also confirms contract findings at their evidence sites (callers outside the diff).
+  const diagAt = new Map<string, { tool: string; code: string; message: string }>();
+  for (const r of toolchain.results) for (const d of r.diagnostics) diagAt.set(`${d.file}:${d.line}`, { tool: r.tool, code: d.code, message: d.message });
+  for (const f of staticFindings) {
+    if (!f.rule.startsWith('contract/')) continue;
+    for (const e of f.evidence) {
+      const d = diagAt.get(`${e.file}:${e.line}`);
+      if (d && !e.note.includes('confirms')) e.note += ` · ${d.tool} confirms: ${d.message.replace(/\.$/, '')}`;
+    }
+    if (f.evidence.some((e) => e.note.includes('confirms'))) f.confidence = Math.max(f.confidence, 0.99);
+  }
   const impact = computeImpact(ctx);
   const history = analyzeHistory(ctx);
   const split = suggestSplit(ctx);
@@ -341,7 +352,7 @@ export async function runReview(opts: ReviewOptions): Promise<ReviewResult> {
       }
       // Proof by execution, only when asked: runs model-written tests on this machine.
       if (cfg.repro && llmFindings.length) {
-        if (changes.headRef !== null) notes.push('--repro needs the reviewed code checked out; skipped.');
+        if (!changes.worktreeIsHead) notes.push('--repro needs the reviewed code checked out; skipped.');
         else {
           try {
             const repros = await reproduce(ctx, metered, llmFindings, { log, keepDir: opts.keepRepro ? '.plumb/repro' : undefined });
