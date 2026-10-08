@@ -1,0 +1,100 @@
+{
+ "summary": {
+  "at": "2026-10-08T17:16:27.538Z",
+  "mode": "exchange/default/deep",
+  "cases": 4,
+  "plumb": {
+   "caught": 1,
+   "rate": 0.25,
+   "staticCatches": 0,
+   "avgFindings": 1.75,
+   "usd": 0,
+   "seconds": 918.5999999999999
+  },
+  "others": {
+   "greptile": 3,
+   "cursor": 1,
+   "copilot": 2,
+   "coderabbit": 1,
+   "graphite": 0
+  },
+  "caughtByPlumbOnly": []
+ },
+ "results": [
+  {
+   "id": "discourse-5",
+   "bug": "Mixing float: left with flexbox causes layout issues",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 162.4,
+   "others": [
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "discourse-6",
+   "bug": "String mutation with << operator",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 2,
+   "findingTitles": [
+    "[P2] app/serializers/user_serializer.rb:144 Same-domain check treats unrelated hosts that share a public suffix as the instance's own domain",
+    "[P2] app/serializers/user_serializer.rb:153 include_website_name lacks the trailing '?' so the serializer never calls it"
+   ],
+   "usd": 0,
+   "seconds": 155,
+   "others": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ]
+  },
+  {
+   "id": "discourse-8",
+   "bug": "Race conditions in async member loading",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "findMembers applies responses in arrival order, so a stale page can overwrite a newer one",
+    "file": "app/assets/javascripts/discourse/models/group.js",
+    "line": 23,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #2 identifies the race condition in async member loading: findMembers in group.js fires overlapping requests with no in-flight guard and applies responses in arrival order, so a stale response can overwrite newer members/offset. It also notes that reloads from addMembers/removeMember race with paging. This matches the known bug's root cause and location and explains the impact.",
+   "findings": 5,
+   "findingTitles": [
+    "[P1] app/controllers/admin/groups_controller.rb:71 add_members re-inserts users who are already in the group; repeat submits are not idempotent",
+    "[P2] app/assets/javascripts/admin/controllers/admin-group.js.es6:13 totalPages is off by one when user_count is an exact multiple of limit",
+    "[P2] app/assets/javascripts/discourse/models/group.js:23 findMembers applies responses in arrival order, so a stale page can overwrite a newer one",
+    "[P2] app/assets/javascripts/discourse/routes/group-members.js.es6:11 Public group members page now shows only the first 50 members and has no paging",
+    "[P2] app/controllers/groups_controller.rb:22 members endpoint passes negative or zero limit/offset straight to SQL"
+   ],
+   "usd": 0,
+   "seconds": 360,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "discourse-9",
+   "bug": "Thread-safety issue with lazy @loaded_locales",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 241.2,
+   "others": [
+    "greptile",
+    "copilot"
+   ]
+  }
+ ]
+}

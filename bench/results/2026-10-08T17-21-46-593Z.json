@@ -1,0 +1,57 @@
+{
+ "summary": {
+  "at": "2026-10-08T17:21:46.593Z",
+  "mode": "exchange/default/deep",
+  "cases": 2,
+  "plumb": {
+   "caught": 0,
+   "rate": 0,
+   "staticCatches": 0,
+   "avgFindings": 0,
+   "usd": 0,
+   "seconds": 601.2
+  },
+  "others": {
+   "greptile": 2,
+   "cursor": 2,
+   "copilot": 1,
+   "coderabbit": 1,
+   "graphite": 0
+  },
+  "caughtByPlumbOnly": []
+ },
+ "results": [
+  {
+   "id": "keycloak-9",
+   "bug": "Unsafe raw List deserialization without type safety",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 486.1,
+   "others": [
+    "greptile",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "keycloak-10",
+   "bug": "Missing null check causing NullPointerException",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 115.1,
+   "others": [
+    "greptile",
+    "copilot",
+    "cursor"
+   ]
+  }
+ ]
+}

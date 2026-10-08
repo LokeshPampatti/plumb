@@ -51,6 +51,7 @@ Pick a model in `.plumb/config.json`, or per run:
 | `ollama` | $0, fully local | `ollama serve` and a code model |
 | `anthropic` | Per token, shown before the run | `ANTHROPIC_API_KEY` |
 | `openai` | Per token, shown before the run | `OPENAI_API_KEY` |
+| `exchange` | $0 in API fees | Something that answers request files: Plumb writes `req-<id>.md` to `PLUMB_EXCHANGE_DIR` and waits for `res-<id>.json` (an agent, a script, or a person) |
 
 The default Anthropic model is `claude-opus-5-5` at high effort, with prompt caching on the shared repo context and the API's server-side refusal fallback turned on.
 
@@ -182,13 +183,41 @@ npx tsx bench/run.ts --provider claude-code          # your Claude plan
 npx tsx bench/run.ts --provider anthropic --budget 1 --yes
 ```
 
-Results land in `bench/results/`.
+Results land in `bench/results/`. `npx tsx bench/aggregate.ts <runs...> --deep <deep runs>` merges them into `bench/results/SUMMARY.md`.
+
+### Results (2026-10-08)
+
+All 50 PRs, with Claude Opus as the model. The model calls went to Claude Code sub-agents through the `exchange` provider, one fresh agent per call, so the run cost $0 in API fees. A separate fresh agent graded each PR. It saw only the known bug and Plumb's findings, and a finding counted only if it named the same root cause at the code that has it.
+
+| Tool | Bugs caught (of 50) |
+|---|---|
+| Greptile | 41 |
+| Cursor | 29 |
+| Copilot | 26 |
+| Plumb, default depth | 24 |
+| CodeRabbit | 22 |
+| Graphite | 3 |
+
+The other tools' numbers come from Greptile's own published table. They were not rerun here.
+
+Plumb averaged 2.3 findings per PR. In 18 of its 26 misses it reported other problems in the same PR instead of the labeled bug; the benchmark scores only the labeled one, so those findings count for nothing here, and beyond Plumb's own skeptic pass nobody has checked whether they are real. The finder prompt tells the model to skip naming and style issues and to favor precision over recall, and several labeled bugs fall in that zone (a metric tag spelled `shard` in one place and `shards` in another, a CSS float inside a flexbox). On this benchmark that trade costs recall. A higher-recall mode is the obvious next step, and it should be measured on PRs outside these 50 so it isn't tuned to the answer key.
+
+`--depth deep` (three independent finders plus security, concurrency and data passes) was rerun on 22 of the 26 misses and caught 3 more: cal.com-5, grafana-10 and discourse-8. That makes 27 of 50, scored separately from the default run. sentry-5, sentry-6, sentry-9 and keycloak-5 were not rerun because their diffs split into many batches and each would have cost dozens of model calls.
+
+Caveats worth knowing before quoting these numbers:
+
+- sentry-1's label says the PR imports a `OptimizedCursorPaginator` that doesn't exist, but the PR defines that class in `paginator.py`.
+- The discourse-7 grade was a close call. The bug text names no file, and all four of Plumb's findings were about the same lightness mismatch.
+- grafana-3 is a Go compile error that `go vet` would catch, but Go was not installed on the machine that ran this, so the toolchain layer skipped it.
+- Plumb caught one bug Greptile's table marks as missed (sentry-2, negative cursor offsets).
+
+The per-PR table is in [bench/results/SUMMARY.md](bench/results/SUMMARY.md).
 
 ## Status
 
-Working: everything above, covered by 38 tests (diff parsing, extraction across languages, every static check, the full pipeline with a scripted model, secret hygiene, the trust model, the toolchain layer, repro runs against real test files, the GitHub and GitLab flows against fake APIs, and the MCP server over stdio).
+Working: everything above, covered by 39 tests (diff parsing, extraction across languages, every static check, the full pipeline with a scripted model, secret hygiene, the trust model, the toolchain layer, repro runs against real test files, the GitHub and GitLab flows against fake APIs, and the MCP server over stdio).
 
-Not done yet: a live model run of the full benchmark, Bitbucket, a hosted dashboard, sandboxing for `--repro`.
+Not done yet: a higher-recall review mode measured on held-out PRs, Bitbucket, a hosted dashboard, sandboxing for `--repro`.
 
 ## License
 

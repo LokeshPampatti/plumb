@@ -1,0 +1,41 @@
+{
+ "summary": {
+  "mode": "exchange/default/deep",
+  "partial": true,
+  "note": "rebuilt from deep-keycloak.log; the lane was stopped before its remaining cases"
+ },
+ "results": [
+  {
+   "id": "keycloak-2",
+   "bug": "Recursive caching call using session instead of delegate",
+   "caught": false,
+   "how": null,
+   "findings": 1,
+   "seconds": 535.8,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "keycloak-3",
+   "bug": "Returns wrong provider (default keystore instead of BouncyCastle)",
+   "caught": false,
+   "how": null,
+   "findings": 1,
+   "seconds": 263.3,
+   "others": [
+    "greptile",
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "keycloak-4",
+   "bug": "Incorrect method call for exit codes",
+   "caught": false,
+   "how": null,
+   "findings": 0,
+   "seconds": 214.7,
+   "others": []
+  }
+ ]
+}

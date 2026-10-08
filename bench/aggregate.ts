@@ -57,7 +57,7 @@ const lines = [
   '',
   `Default depth: Plumb caught **${caught.length}/${n}** (${pct(caught.length)}), ${caught.filter((r) => r.how === 'static').length} of them with $0 static analysis. Avg ${avgFindings.toFixed(1)} findings per PR.`,
   deepFiles.length
-    ? `With \`--depth deep\` re-run on the ${deepTried} misses (scored separately): ${deepSaves.length} more caught, **${combined}/${n}** (${pct(combined)}) in total${deepSaves.length ? ` (${deepSaves.join(', ')})` : ''}.`
+    ? `With \`--depth deep\` re-run on ${deepTried} of the ${n - caught.length} misses (scored separately): ${deepSaves.length} more caught, **${combined}/${n}** (${pct(combined)}) in total${deepSaves.length ? ` (${deepSaves.join(', ')})` : ''}.`
     : '',
   '',
   `Greptile's own published table, same ${n} PRs: ${ranking.map((r) => `${r.name} ${r.score}`).join(', ')}.`,

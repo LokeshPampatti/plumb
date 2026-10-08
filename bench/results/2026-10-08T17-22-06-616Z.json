@@ -1,0 +1,114 @@
+{
+ "summary": {
+  "at": "2026-10-08T17:22:06.616Z",
+  "mode": "exchange/default/deep",
+  "cases": 5,
+  "plumb": {
+   "caught": 1,
+   "rate": 0.2,
+   "staticCatches": 0,
+   "avgFindings": 0.8,
+   "usd": 0,
+   "seconds": 1399.7
+  },
+  "others": {
+   "greptile": 3,
+   "cursor": 4,
+   "copilot": 2,
+   "coderabbit": 1,
+   "graphite": 0
+  },
+  "caughtByPlumbOnly": []
+ },
+ "results": [
+  {
+   "id": "grafana-2",
+   "bug": "Cache entries without expiration causing permanent permission denials",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] pkg/services/authz/rbac/cache.go:30 Denial cache key is ambiguous: name and parent joined with '_', which UIDs may contain"
+   ],
+   "usd": 0,
+   "seconds": 390.7,
+   "others": [
+    "cursor"
+   ]
+  },
+  {
+   "id": "grafana-3",
+   "bug": "Undefined endpoint constants causing compilation errors",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 145.9,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "grafana-4",
+   "bug": "Double interpolation risk",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 354.9,
+   "others": [
+    "copilot",
+    "cursor"
+   ]
+  },
+  {
+   "id": "grafana-8",
+   "bug": "Deadlock potential during concurrent annotation deletion operations",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] pkg/api/webassets/webassets.go:48 Cache is not re-checked after taking the write lock, so waiting callers reload it and can overwrite it"
+   ],
+   "usd": 0,
+   "seconds": 142.7,
+   "others": [
+    "greptile",
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  },
+  {
+   "id": "grafana-10",
+   "bug": "Race condition in cache locking",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "Narrowed cacheMu makes init's parallel builds race on shared err and counter",
+    "file": "pkg/storage/unified/search/bleve.go",
+    "line": 137,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #1 points at the cache locking code in bleve.go BuildIndex (line 137). It names the root cause, cacheMu narrowed from wrapping the whole build to only the cache write, and explains the impact: concurrent BuildIndex calls now run truly in parallel and race, which can swallow failed index builds and gets flagged by the race detector. That matches the known 'race condition in cache locking'. Finding #0 describes the same mechanism but anchors on search.go rather than the locking code, so #1 is the better match.",
+   "findings": 2,
+   "findingTitles": [
+    "[P2] pkg/storage/unified/resource/search.go:173 init workers race on shared err and totalBatchesIndexed; failed index builds can be swallowed",
+    "[P2] pkg/storage/unified/search/bleve.go:137 Narrowed cacheMu makes init's parallel builds race on shared err and counter"
+   ],
+   "usd": 0,
+   "seconds": 365.5,
+   "others": [
+    "greptile",
+    "cursor"
+   ]
+  }
+ ]
+}

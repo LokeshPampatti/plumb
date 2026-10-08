@@ -1,0 +1,126 @@
+{
+ "summary": {
+  "at": "2026-10-08T17:32:24.389Z",
+  "mode": "exchange/default/deep",
+  "cases": 5,
+  "plumb": {
+   "caught": 1,
+   "rate": 0.2,
+   "staticCatches": 0,
+   "avgFindings": 3.2,
+   "usd": 0,
+   "seconds": 1709.8999999999999
+  },
+  "others": {
+   "greptile": 3,
+   "cursor": 2,
+   "copilot": 2,
+   "coderabbit": 2,
+   "graphite": 0
+  },
+  "caughtByPlumbOnly": []
+ },
+ "results": [
+  {
+   "id": "cal.com-2",
+   "bug": "Backup codes not invalidated after use",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 3,
+   "findingTitles": [
+    "[P1] packages/features/auth/lib/next-auth-options.ts:131 Backup-code login skips password check when any totpCode is also sent",
+    "[P2] apps/web/components/settings/EnableTwoFactorModal.tsx:278 Clipboard write promise is not awaited; success toast shows even when the copy fails",
+    "[P2] packages/features/auth/lib/next-auth-options.ts:148 Backup code consumption is a non-atomic read-modify-write, so codes can be reused"
+   ],
+   "usd": 0,
+   "seconds": 319.2,
+   "others": [
+    "coderabbit"
+   ]
+  },
+  {
+   "id": "cal.com-4",
+   "bug": "Potential SQL injection risk in raw SQL query construction",
+   "caught": false,
+   "how": null,
+   "judge": "keyword",
+   "findings": 0,
+   "findingTitles": [],
+   "usd": 0,
+   "seconds": 192.1,
+   "others": [
+    "greptile",
+    "copilot"
+   ]
+  },
+  {
+   "id": "cal.com-5",
+   "bug": "Missing database cleanup when immediateDelete is true",
+   "caught": true,
+   "how": "model",
+   "matched": {
+    "title": "immediateDelete cancels the SendGrid batch but leaves the WorkflowReminder row behind",
+    "file": "packages/features/ee/workflows/lib/reminders/emailReminderManager.ts",
+    "line": 213,
+    "verification": "confirmed"
+   },
+   "judge": "llm",
+   "judgeReason": "Finding #2 points at emailReminderManager.ts and says that on the immediateDelete path the helper returns right after the SendGrid cancel, so the WorkflowReminder row is never deleted or updated. That is the same root cause as the known bug: the database cleanup is missing when immediateDelete is true. It also explains the impact: orphaned rows that point at a cancelled batch, and duplicate cancels sent by the cron. Findings #0 and #1 describe different problems (dropped awaits, and the loop aborting on one error).",
+   "findings": 3,
+   "findingTitles": [
+    "[P2] packages/features/bookings/lib/handleCancelBooking.ts:484 Reminder cancel/delete writes are no longer awaited when a booking is cancelled",
+    "[P2] packages/features/ee/workflows/api/scheduleEmailReminders.ts:53 One failed SendGrid cancel aborts cancellation of every remaining cancelled reminder",
+    "[P2] packages/features/ee/workflows/lib/reminders/emailReminderManager.ts:213 immediateDelete cancels the SendGrid batch but leaves the WorkflowReminder row behind"
+   ],
+   "usd": 0,
+   "seconds": 505,
+   "others": [
+    "greptile",
+    "cursor"
+   ]
+  },
+  {
+   "id": "cal.com-7",
+   "bug": "Timing attack vulnerability using direct string comparison",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 9,
+   "findingTitles": [
+    "[P0] packages/app-store/googlecalendar/lib/CalendarService.ts:97 Google refresh stores the safeParse wrapper {success, data} as the credential key",
+    "[P1] packages/app-store/_utils/oauth/parseRefreshTokenResponse.ts:5 Minimum token schema strips every field except access_token",
+    "[P1] packages/app-store/_utils/oauth/refreshOAuthTokens.ts:8 Sync branch returns a raw fetch Response that axios/SDK-based callers cannot read",
+    "[P2] apps/web/pages/api/webhook/app-credential.ts:62 Check-then-act race in credential webhook can create duplicate credentials",
+    "[P2] packages/app-store/_utils/oauth/parseRefreshTokenResponse.ts:25 Missing refresh_token is replaced with the literal \"refresh_token\" and overwrites the real one",
+    "[P2] packages/app-store/_utils/oauth/refreshOAuthTokens.ts:8 Credential sync request carries no authentication, so the token endpoint must serve tokens to anyone",
+    "[P2] packages/app-store/office365video/lib/VideoApiAdapter.ts:61 In sync mode the Teams credential key is replaced by a response that lacks refresh_token",
+    "[P2] packages/app-store/salesforce/lib/CalendarService.ts:101 Salesforce saves the refreshed token but builds the Connection from the stale pre-refresh key",
+    "[P2] packages/app-store/zoho-bigin/lib/CalendarService.ts:93 Zoho Bigin passes the credential id as the Cal.com user id to the sync endpoint"
+   ],
+   "usd": 0,
+   "seconds": 529.9,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "cal.com-8",
+   "bug": "OR condition causes deletion of all workflow reminders",
+   "caught": false,
+   "how": null,
+   "judge": "llm",
+   "findings": 1,
+   "findingTitles": [
+    "[P2] packages/features/ee/workflows/api/scheduleSMSReminders.ts:190 Unguarded update inside catch can throw and abort the whole cron batch"
+   ],
+   "usd": 0,
+   "seconds": 163.7,
+   "others": [
+    "copilot",
+    "coderabbit",
+    "cursor"
+   ]
+  }
+ ]
+}

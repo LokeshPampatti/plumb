@@ -1,0 +1,43 @@
+{
+ "summary": {
+  "mode": "exchange/default/deep",
+  "partial": true,
+  "note": "rebuilt from deep-sentry.log; the lane was stopped before its remaining cases"
+ },
+ "results": [
+  {
+   "id": "sentry-1",
+   "bug": "Importing non-existent OptimizedCursorPaginator",
+   "caught": false,
+   "how": null,
+   "findings": 3,
+   "seconds": 274.5,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "sentry-3",
+   "bug": "sample_rate = 0.0 is falsy and skipped",
+   "caught": false,
+   "how": null,
+   "findings": 4,
+   "seconds": 423.7,
+   "others": [
+    "greptile"
+   ]
+  },
+  {
+   "id": "sentry-4",
+   "bug": "Null reference if github_authenticated_user state is missing",
+   "caught": false,
+   "how": null,
+   "findings": 3,
+   "seconds": 535.5,
+   "others": [
+    "copilot",
+    "cursor"
+   ]
+  }
+ ]
+}

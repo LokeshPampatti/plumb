@@ -157,6 +157,11 @@ async function main() {
   const judgeProvider = !staticOnly && provider !== 'none' ? makeProvider({ ...model, name: arg('judge-model') ?? model.name }) : null;
 
   const results: CaseResult[] = [];
+  const outDir = join(here, 'results');
+  mkdirSync(outDir, { recursive: true });
+  const startedAt = new Date().toISOString();
+  const stamp = startedAt.replace(/[:.]/g, '-');
+  const mode = staticOnly ? 'static' : `${provider}/${model.name ?? 'default'}${depth ? `/${depth}` : ''}`;
   for (const c of cases) {
     const t0 = Date.now();
     process.stderr.write(`\n[${c.id}] ${c.title}\n  bug: ${c.bug}\n`);
@@ -209,6 +214,8 @@ async function main() {
       others: c.caughtBy,
     };
     results.push(res);
+    // Save after every case so a stopped run keeps what it finished.
+    writeFileSync(join(outDir, `${stamp}.json`), JSON.stringify({ summary: { at: startedAt, mode, partial: true }, results }, null, 1));
     process.stderr.write(`  ${res.caught ? 'CAUGHT' : 'missed'} · ${res.findings} findings · $${res.usd.toFixed(3)} · ${res.seconds}s${error ? ` · ERROR ${error}` : ''}\n`);
     if (m) process.stderr.write(`  ↳ ${m.file}:${m.line} ${m.title}\n`);
   }
@@ -217,16 +224,13 @@ async function main() {
   const caught = results.filter((r) => r.caught).length;
   const tools = ['greptile', 'cursor', 'copilot', 'coderabbit', 'graphite'];
   const summary = {
-    at: new Date().toISOString(),
-    mode: staticOnly ? 'static' : `${provider}/${model.name ?? 'default'}${depth ? `/${depth}` : ''}`,
+    at: startedAt,
+    mode,
     cases: n,
     plumb: { caught, rate: n ? caught / n : 0, staticCatches: results.filter((r) => r.how === 'static').length, avgFindings: n ? results.reduce((a, r) => a + r.findings, 0) / n : 0, usd: results.reduce((a, r) => a + r.usd, 0), seconds: results.reduce((a, r) => a + r.seconds, 0) },
     others: Object.fromEntries(tools.map((t) => [t, cases.filter((c) => c.caughtBy.includes(t)).length])),
     caughtByPlumbOnly: results.filter((r) => r.caught && !r.others.includes('greptile')).map((r) => r.id),
   };
-  const outDir = join(here, 'results');
-  mkdirSync(outDir, { recursive: true });
-  const stamp = summary.at.replace(/[:.]/g, '-');
   writeFileSync(join(outDir, `${stamp}.json`), JSON.stringify({ summary, results }, null, 1));
 
   const md: string[] = [
