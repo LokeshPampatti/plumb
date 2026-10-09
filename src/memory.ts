@@ -1,6 +1,6 @@
-// Team memory. Greptile learns from reactions over 2-3 weeks inside a black box.
-// Plumb writes every lesson to .plumb/memory.json: readable, diffable, reviewable
-// in a PR, effective on the very next run, and revertible with one command.
+// Team memory. Every lesson goes to .plumb/memory.json: readable, diffable,
+// reviewable in a PR, effective on the very next run, and revertible with one
+// command.
 
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';

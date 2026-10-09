@@ -1,5 +1,5 @@
 // Explainable confidence score and merge gate. Every point lost is itemized, and
-// the auto-approve decision always says why (Greptile withholds approval silently).
+// the auto-approve decision always says why, whether it approves or not.
 
 import picomatch from 'picomatch';
 import type { PlumbConfig } from '../config.js';

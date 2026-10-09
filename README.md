@@ -30,11 +30,12 @@ Score
 static checks only, $0 · 0.1s
 ```
 
-Both of those bugs were caught in 0.1 seconds, for $0, with no model involved. The two broken callers are in files the change never touched, so a reviewer who only reads the diff won't see them. Try it with `sh examples/demo.sh`.
+Both of those bugs were caught in about 0.2 seconds, for $0, with no model involved. The two broken callers are in files the change never touched, so a reviewer who only reads the diff won't see them. Try it with `sh examples/demo.sh`.
 
 ## Quick start
 
 ```bash
+git clone https://github.com/LokeshPampatti/plumb && cd plumb
 npm install && npm run build
 npm link            # puts `plumb` on your PATH
 cd your-repo
@@ -47,7 +48,7 @@ Pick a model in `.plumb/config.json`, or per run:
 | Provider | What it costs | Setup |
 |---|---|---|
 | `none` | $0. Static checks only | nothing |
-| `claude-code` | $0 in API fees, uses your Claude plan | Claude Code installed and logged in |
+| `claude-code` | $0 in API fees, uses your Claude plan | Claude Code installed and logged in (tested against a stub CLI so far) |
 | `ollama` | $0, fully local | `ollama serve` and a code model |
 | `anthropic` | Per token, shown before the run | `ANTHROPIC_API_KEY` |
 | `openai` | Per token, shown before the run | `OPENAI_API_KEY` |
@@ -57,7 +58,7 @@ The default Anthropic model is `claude-opus-5-5` at high effort, with prompt cac
 
 ## How a review works
 
-1. **Index.** Plumb parses the repo with tree-sitter (TypeScript, JavaScript, Python, Go, Java, Kotlin, Rust, C#, PHP, C, C++, Swift, Scala; Ruby through a line-based fallback) into a graph of definitions, calls and imports. Results are cached by content hash, so a 13,600-file Sentry checkout indexes in about 24 seconds cold and a second or two after that.
+1. **Index.** Plumb parses the repo with tree-sitter (TypeScript, JavaScript, Python, Go, Java, Kotlin, Rust, C#, PHP, C, C++, Swift, Scala; Ruby through a line-based fallback) into a graph of definitions, calls and imports. Results are cached by content hash, so a 13,600-file Sentry checkout indexes in about 31 seconds cold and about 7 seconds once cached.
 2. **Prove what can be proven.** Deterministic checks run first and cost nothing:
    - a function's parameters changed, and callers elsewhere still pass the old arguments
    - a symbol was removed or renamed, and another file still imports or calls it
@@ -73,33 +74,25 @@ The default Anthropic model is `claude-opus-5-5` at high effort, with prompt cac
 8. **Prove it by running it (opt-in).** With `--repro`, the model writes a minimal failing test for each P0/P1 in your project's own framework (vitest, jest, node:test, pytest, go test). Plumb runs it and deletes it. A test that fails on an assertion marks the finding **reproduced**; a test that passes marks it **not reproduced** and lowers its weight. This runs model-written code on your machine, so it is off unless you ask.
 9. **Apply memory, score, gate.** See below.
 
-## Where it's different from Greptile
+## Design choices
 
-Everything in the Greptile column comes from Greptile's own docs (October 2026). Details and quotes are in [docs/greptile-teardown.md](docs/greptile-teardown.md).
+Plumb started as a way to learn the problem Greptile works on: build a reviewer from scratch, then measure it on Greptile's public benchmark. Along the way it settled on these choices:
 
-| | Greptile | Plumb |
-|---|---|---|
-| Review uncommitted work | No. The CLI "ignores uncommitted changes" | Default mode. Also `--staged`, `--branch`, `--range` |
-| Review someone else's PR | Install the app on the repo | `plumb review --pr github.com/org/repo/pull/123`, no clone needed |
-| Proof by execution | T-Rex: beta, hosted, Base tier only | `--repro`: writes and runs a failing test locally, at any depth |
-| Your compiler as a reviewer | A model-judged "syntax" comment type; the docs never mention running your compiler | Runs your `tsc` / `go vet` / `ruff` and reports only new errors on changed lines |
-| Account | Required, even for the CLI | None |
-| Cost | $30/seat/month, then $1 per review. Plus = 3 credits, Apex = 10 | Free and open source. Bring any model, or run static checks for $0 |
-| Deeper reviews | Plus (3×) and Apex (10×) tiers, contents undocumented | `--depth deep`: named specialist passes and voting, priced before it runs |
-| Know the cost first | No preview; their troubleshooting covers reviews that "cost 3 or 10 credits instead of 1" | Estimate before every paid run, plus a hard per-review cap |
-| False positives | Third-party benchmarks report more noise than competitors | Skeptic pass on every model finding, optional majority voting, evidence re-read from disk |
-| Bugs outside the diff | Inline comments only reach diff lines | Deterministic contract checks, plus a "Problems outside this diff" section in the PR summary |
-| Score | 0-5 | 0-5 with every deduction itemized |
-| Auto-approve | "A withheld approval is silent" | Every decision says why, approve or not |
-| Learning | 2-3 weeks of reactions, plus past PR comments, stored in the dashboard | Instant. Rules live in `.plumb/memory.json`, get reviewed in PRs, and revert with one command. P0, security, secret and contract findings can't be silenced |
-| Whose config applies | `greptile.json` is read from the PR's branch | Config, rules, memory and instruction files (CLAUDE.md, AGENTS.md) come from the base branch, so a PR can't loosen its own review or prompt-inject the reviewer |
-| Secrets and the model | The CLI holds back files that look sensitive | Secret values are redacted from every prompt and every output |
-| Big PRs | Docs advise splitting large PRs | Suggests a dependency-ordered split |
-| Reviewers | Not in docs | Suggests people from git history of the touched files |
-| CI formats | PR comments | PR comments, SARIF 2.1.0 (GitHub code scanning), Markdown, JSON, HTML |
-| Analytics | Hosted dashboard | `plumb stats`, local: addressed rate, fixed vs dismissed, what the skeptic threw out |
+| Choice | What it means in practice |
+|---|---|
+| Review before you commit | The default mode reviews uncommitted work. `--staged`, `--branch` and `--range` cover the rest, and `--pr <url>` reviews any GitHub PR without a clone |
+| Prove what can be proven first | Contract checks and your own `tsc` / `go vet` / `ruff` run before any model call. Only errors on lines the change added are reported |
+| Every model finding meets a skeptic | A second pass gets the same context and tries to refute each finding. `--votes 3` adds majority voting, and evidence is re-read from disk |
+| Proof by execution, opt-in | `--repro` writes and runs a failing test locally for each P0/P1 finding |
+| Cost before spend | Every paid run prints an estimate first and stops at a hard per-review cap. Static checks cost $0 |
+| Bugs outside the diff | Callers broken in files the change never touched get reported, and PR summaries list them under "Problems outside this diff" |
+| Config from the base branch | Config, rules, memory and instruction files (CLAUDE.md, AGENTS.md) come from the base branch, so a PR can't loosen its own review or prompt-inject the reviewer |
+| Memory lives in the repo | Learned rules sit in `.plumb/memory.json`, get reviewed in PRs, and revert with one command. P0, security, secret and contract findings can't be silenced |
+| Decisions explain themselves | The 0-5 score itemizes every deduction, and auto-approve always says why it did or didn't approve |
+| Secrets stay out of prompts | Secret values are redacted from every prompt and every output |
+| Output for any pipeline | PR comments, SARIF 2.1.0 for GitHub code scanning, Markdown, JSON and HTML |
 
-What Greptile has that Plumb doesn't: a hosted team dashboard, Jira/Linear/Confluence context, a hosted sandbox for running tests (Plumb's `--repro` runs locally or on your CI runner), Bitbucket/Gitea/Perforce support, SSO and SOC 2. Plumb is a developer tool, not yet a hosted product.
+What Plumb doesn't have: a hosted dashboard, Jira/Linear/Confluence context, a hosted test sandbox, Bitbucket or Perforce support, SSO, or SOC 2. It is a developer tool, not a hosted product, and on Greptile's benchmark it catches fewer bugs than Greptile does (results below).
 
 ## Commands
 
@@ -180,6 +173,7 @@ Tools: `plumb_review` (static by default, model on request), `plumb_impact` (cal
 ```bash
 npx tsx bench/run.ts --static                        # $0
 npx tsx bench/run.ts --provider claude-code          # your Claude plan
+npx tsx bench/run.ts --provider exchange             # answer the requests with your own agents
 npx tsx bench/run.ts --provider anthropic --budget 1 --yes
 ```
 

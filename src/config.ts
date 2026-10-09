@@ -110,7 +110,7 @@ export interface LoadedConfig {
 
 /**
  * Load config. Policy is read from the BASE side of the change so a PR cannot
- * loosen its own review (Greptile reads greptile.json from the source branch).
+ * loosen its own review or prompt-inject the reviewer.
  */
 export function loadConfig(base: Snapshot, head: Snapshot, cliOverrides: Partial<PlumbConfig> = {}): LoadedConfig {
   const sources: string[] = [];
@@ -198,7 +198,7 @@ export const SAMPLE_CONFIG = `{
 }
 `;
 
-/** Review depth presets, like Greptile's Base / Plus / Apex but with the cost shown up front. */
+/** Review depth presets. Each one is priced by the estimate before it runs. */
 export const DEPTHS: Record<'quick' | 'standard' | 'deep', Partial<PlumbConfig> & { effort: PlumbConfig['model']['effort'] }> = {
   quick: { votes: 1, specialists: [], verify: true, effort: 'medium' },
   standard: { votes: 1, specialists: [], verify: true, effort: 'high' },

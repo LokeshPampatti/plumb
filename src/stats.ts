@@ -25,7 +25,7 @@ export interface Stats {
   bySource: { source: string; raised: number; fixed: number }[];
 }
 
-/** Greptile-style review analytics, computed locally from .plumb/state/history.jsonl. */
+/** Review analytics, computed locally from .plumb/state/history.jsonl. */
 export function computeStats(root: string, sinceDays = 90): Stats | null {
   const p = join(root, '.plumb', 'state', 'history.jsonl');
   if (!existsSync(p)) return null;

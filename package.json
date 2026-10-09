@@ -2,6 +2,23 @@
   "name": "plumb-review",
   "version": "0.1.0",
   "description": "Local-first AI code review that shows its work: verified findings, blast radius, transparent memory.",
+  "keywords": [
+    "code-review",
+    "ai",
+    "static-analysis",
+    "tree-sitter",
+    "github-action",
+    "mcp"
+  ],
+  "author": "Lokesh Pampatti",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LokeshPampatti/plumb.git"
+  },
+  "homepage": "https://github.com/LokeshPampatti/plumb#readme",
+  "bugs": {
+    "url": "https://github.com/LokeshPampatti/plumb/issues"
+  },
   "type": "module",
   "bin": {
     "plumb": "bin/plumb.js"
