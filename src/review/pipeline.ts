@@ -6,6 +6,7 @@ import { evidence, finalize, lineText, type AnalysisContext } from '../analyzers
 import { analyzeHistory, type HistoryReport } from '../analyzers/history.js';
 import { computeImpact, type Impact } from '../analyzers/impact.js';
 import { secretFindings } from '../analyzers/secrets.js';
+import { agentSafetyFindings } from '../analyzers/agentsafety.js';
 import { suggestSplit, type SplitPlan } from '../analyzers/split.js';
 import { runToolchain, type ToolResult } from '../analyzers/toolchain.js';
 import { loadConfig, SEVERITY_RANK, type PlumbConfig } from '../config.js';
@@ -182,7 +183,7 @@ export async function runReview(opts: ReviewOptions): Promise<ReviewResult> {
   const ctx: AnalysisContext = { changes, newIndex, oldIndex, loaded, reviewFiles };
 
   // Deterministic layer: free, instant, never hallucinates.
-  const staticFindings = [...contractFindings(ctx), ...secretFindings(ctx)].filter((f) => reviewFiles.has(f.file) || f.rule.startsWith('contract/'));
+  const staticFindings = [...contractFindings(ctx), ...secretFindings(ctx), ...agentSafetyFindings(ctx)].filter((f) => reviewFiles.has(f.file) || f.rule.startsWith('contract/'));
   // The project's own compilers and correctness linters, on added lines only.
   const toolchain = cfg.toolchain && !opts.skipToolchain ? await runToolchain(ctx, { log }) : { findings: [], results: [] };
   for (const t of toolchain.findings) {
